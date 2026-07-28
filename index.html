@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RedTrack Product Discovery Flow — skill, 12 steps, 15 sub-agents</title>
+<meta name="description" content="How the /rt-product-discovery skill works, what all 15 sub-agents do, and how to install them into your Claude Code in one command." />
+<meta name="author" content="Uladzislau Dziarkach (Vladislav Derkach)" />
+<style>
+  :root{
+    --bg:#0a0c11; --bg2:#0e1118; --panel:#12161f; --panel2:#161b26;
+    --ink:#e8ecf4; --mut:#98a2b6; --dim:#6b7488; --line:#232a38; --line2:#2e3648;
+    --red:#ff4d52; --red-d:#e0353b; --amber:#f6b73c; --teal:#37d3b5; --violet:#9b8cff; --blue:#5aa0ff; --green:#4bd07f;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;font-size:16px}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  h1,h2,h3{line-height:1.2;margin:0}
+  code,kbd,pre{font-family:var(--mono)}
+  kbd{background:#000;border:1px solid var(--line2);border-radius:6px;padding:1px 7px;font-size:.85em;color:#fff}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:rgba(10,12,17,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:18px;height:58px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+  .dot{width:11px;height:11px;border-radius:3px;background:var(--red);box-shadow:0 0 14px var(--red)}
+  .navlinks{display:flex;gap:22px;margin-left:auto;font-size:14.5px;color:var(--mut)}
+  .navlinks a:hover{color:var(--ink)}
+  .langtoggle{display:flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden;margin-left:18px}
+  .langbtn{font-family:var(--mono);font-size:12.5px;font-weight:600;padding:7px 11px;background:transparent;color:var(--dim);border:0;cursor:pointer}
+  .langbtn.on{background:var(--panel2);color:var(--ink)}
+  .navcta{margin-left:12px;background:var(--red);color:#fff;font-weight:600;font-size:14px;padding:8px 15px;border-radius:9px;border:1px solid var(--red-d)}
+  .navcta:hover{background:var(--red-d)}
+  @media(max-width:820px){.navlinks{display:none}.langtoggle{margin-left:auto}}
+
+  /* HERO */
+  header{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  header::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(720px 340px at 82% -10%,rgba(255,77,82,.16),transparent 60%),
+    radial-gradient(640px 360px at 6% 8%,rgba(91,160,255,.10),transparent 60%);pointer-events:none}
+  .hero{position:relative;padding:70px 0 58px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);background:rgba(255,77,82,.09);border:1px solid rgba(255,77,82,.28);padding:6px 12px;border-radius:100px}
+  .hero h1{font-size:clamp(30px,5.4vw,54px);font-weight:800;letter-spacing:-.028em;margin:22px 0 0}
+  .hero h1 .g{background:linear-gradient(100deg,#fff 20%,var(--red) 120%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lead{font-size:clamp(16.5px,2.2vw,20px);color:var(--mut);max-width:730px;margin:20px 0 0}
+  .byline{margin-top:18px;font-size:14px;color:var(--dim)}
+  .byline a{color:var(--ink);border-bottom:1px solid var(--line2)}
+  .byline a:hover{border-color:var(--red);color:#fff}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:13px;margin-top:26px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:12px 20px;border-radius:11px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);cursor:pointer;transition:.15s}
+  .btn:hover{border-color:#3b465c;transform:translateY(-1px)}
+  .btn.primary{background:var(--red);border-color:var(--red-d);color:#fff}
+  .btn.primary:hover{background:var(--red-d)}
+  .stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:42px}
+  .stat{flex:1;min-width:150px;background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .stat b{display:block;font-size:32px;font-weight:800;letter-spacing:-.02em}
+  .stat span{color:var(--mut);font-size:13.5px}
+  .stat.r b{color:var(--red)} .stat.a b{color:var(--amber)} .stat.t b{color:var(--teal)} .stat.v b{color:var(--violet)}
+
+  /* SECTIONS */
+  section{padding:66px 0;border-bottom:1px solid var(--line)}
+  .sec-tag{font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .sec-h{font-size:clamp(24px,3.6vw,34px);font-weight:800;letter-spacing:-.022em;margin:12px 0 0}
+  .sec-sub{color:var(--mut);max-width:760px;margin:16px 0 0;font-size:16.5px}
+
+  .prose{max-width:760px}
+  .prose p{color:#c7cede;margin:16px 0}
+  .prose strong{color:#fff}
+  .prose ul{color:#c7cede}
+  .prose .accent{color:var(--red);font-weight:600}
+
+  .call{display:flex;gap:14px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:12px;padding:16px 18px;margin:22px 0}
+  .call .ic{font-size:20px;line-height:1.3}
+  .call p{margin:0;color:#c7cede;font-size:15px}
+  .call.red{border-left-color:var(--red)} .call.blue{border-left-color:var(--blue)} .call.green{border-left-color:var(--green)}
+
+  /* PIPELINE */
+  .pipe{margin-top:36px;display:grid;gap:12px}
+  .prow{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:stretch}
+  .pstep{font-family:var(--mono);font-size:13px;color:var(--dim);display:flex;align-items:center;gap:8px;padding-top:14px;flex-wrap:wrap}
+  .pcards{display:flex;gap:10px;flex-wrap:wrap}
+  .pcard{flex:1;min-width:210px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;position:relative;transition:.15s;border-left:3px solid var(--c,var(--line2))}
+  .pcard:hover{border-color:var(--line2);background:var(--panel2)}
+  .pcard .pn{font-weight:700;font-size:15px;letter-spacing:-.01em}
+  .pcard .pd{color:var(--mut);font-size:13px;margin-top:4px}
+  .pcard .badge{position:absolute;top:12px;right:13px;font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:6px;border:1px solid var(--line2);color:var(--dim)}
+  .c-prep{--c:var(--blue)} .c-data{--c:var(--teal)} .c-comp{--c:var(--violet)} .c-gate{--c:var(--amber)} .c-seg{--c:var(--green)} .c-rep{--c:var(--red)}
+  .par{font-family:var(--mono);font-size:10.5px;color:var(--dim);border:1px dashed var(--line2);border-radius:6px;padding:1px 6px}
+  .gate-row .pcard{border-color:rgba(246,183,60,.4);background:rgba(246,183,60,.05)}
+  @media(max-width:680px){.prow{grid-template-columns:1fr}.pstep{padding-top:0}}
+
+  /* AGENT GRID */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:34px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .agent{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:20px;border-top:3px solid var(--c,var(--line2));transition:.15s;display:flex;flex-direction:column}
+  .agent:hover{border-color:var(--line2);transform:translateY(-2px)}
+  .agent .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .agent .stepb{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--c,var(--dim));background:color-mix(in srgb,var(--c,#888) 12%,transparent);border:1px solid color-mix(in srgb,var(--c,#888) 34%,transparent);padding:3px 9px;border-radius:7px;white-space:nowrap}
+  .agent h3{font-size:17.5px;letter-spacing:-.01em;margin-top:2px}
+  .agent .role{color:var(--mut);font-size:14px;margin-top:10px;flex:1}
+  .agent .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .chip{font-family:var(--mono);font-size:11px;color:var(--mut);background:#0b0e14;border:1px solid var(--line);border-radius:7px;padding:3px 8px}
+  .chip.m{color:var(--ink);border-color:var(--line2)}
+  .chip.need{color:var(--amber);border-color:rgba(246,183,60,.3)}
+  .agent .acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .sbtn{font-family:var(--mono);font-size:12px;padding:7px 11px;border-radius:8px;border:1px solid var(--line2);background:#0b0e14;color:var(--mut);cursor:pointer;transition:.12s}
+  .sbtn:hover{color:var(--ink);border-color:#3a465c;background:#0d1119}
+  .src{margin-top:12px;display:none}
+  .src.open{display:block}
+  pre.code{margin:0;background:#06080c;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;max-height:420px;font-size:12px;line-height:1.55;color:#cdd6e6;white-space:pre;tab-size:2}
+  .src .srchead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+
+  /* INSTALL */
+  .install-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:22px}
+  .cmd{position:relative;background:#06080c;border:1px solid var(--line2);border-radius:11px;padding:16px 18px;font-family:var(--mono);font-size:13.5px;color:#dfe6f2;overflow:auto}
+  .cmd .p{color:var(--green)}
+  .cmd .c{color:var(--dim)}
+  .copybar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .copybar h3{font-size:16px}
+  .copyb{font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:8px;border:1px solid var(--red-d);background:var(--red);color:#fff;cursor:pointer;font-weight:600}
+  .copyb:hover{background:var(--red-d)}
+  .copyb.ghost{background:#0b0e14;border-color:var(--line2);color:var(--mut)}
+  .copyb.ghost:hover{color:var(--ink)}
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:26px 0 0}
+  ol.steps li{position:relative;padding:0 0 22px 46px;border-left:1px solid var(--line);margin-left:14px}
+  ol.steps li:last-child{border-left:1px solid transparent}
+  ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:-15px;top:-2px;width:30px;height:30px;border-radius:9px;background:var(--panel2);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red)}
+  ol.steps li h4{margin:0 0 4px;font-size:16px}
+  ol.steps li p{margin:0;color:var(--mut);font-size:14.5px}
+  ol.steps li p code, .prose li code{background:#06080c;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px;color:#dfe6f2}
+
+  table.deps{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
+  table.deps th,table.deps td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.deps th{color:var(--dim);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+  table.deps td code{font-size:12.5px;color:#dfe6f2}
+  .tag-req{color:var(--red);font-family:var(--mono);font-size:11px}
+  .tag-opt{color:var(--dim);font-family:var(--mono);font-size:11px}
+
+  footer{padding:44px 0;color:var(--dim);font-size:14px}
+  footer .wrap{display:flex;flex-direction:column;gap:10px}
+  footer .fauthor{color:var(--ink);font-size:15px}
+  footer .fauthor a{color:var(--red);border-bottom:1px solid rgba(255,77,82,.35)}
+  footer .fauthor a:hover{color:#fff}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#fff;color:#06080c;font-weight:600;font-size:14px;padding:11px 20px;border-radius:11px;opacity:0;pointer-events:none;transition:.25s;z-index:100;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .anchor{scroll-margin-top:74px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="dot"></span>Discovery Flow</a>
+    <div class="navlinks">
+      <a href="#how" data-t="nav_how"></a>
+      <a href="#skill" data-t="nav_skill"></a>
+      <a href="#agents" data-t="nav_agents"></a>
+      <a href="#install" data-t="nav_install"></a>
+    </div>
+    <div class="langtoggle" role="group" aria-label="Language">
+      <button class="langbtn" data-l="ru">RU</button>
+      <button class="langbtn" data-l="en">EN</button>
+    </div>
+    <a class="navcta" href="#install" data-t="nav_cta"></a>
+  </div>
+</nav>
+
+<header id="top">
+  <div class="wrap hero">
+    <span class="eyebrow"><span class="dot" style="width:8px;height:8px"></span>RedTrack · AJTBD · Claude Code</span>
+    <h1 data-t="hero_title"></h1>
+    <p class="lead" data-t="hero_lead"></p>
+    <p class="byline" data-t="byline"></p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#install" data-t="hero_btn1"></a>
+      <a class="btn" href="#how" data-t="hero_btn2"></a>
+    </div>
+    <div class="stats">
+      <div class="stat r"><b>1</b><span data-t="stat1"></span></div>
+      <div class="stat a"><b>12</b><span data-t="stat2"></span></div>
+      <div class="stat t"><b>15</b><span data-t="stat3"></span></div>
+      <div class="stat v"><b>2</b><span data-t="stat4"></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- HOW -->
+<section id="how" class="anchor">
+  <div class="wrap">
+    <span class="sec-tag" data-t="sec01_tag"></span>
+    <h2 class="sec-h" data-t="sec01_h"></h2>
+    <div class="prose">
+      <p data-t="sec01_p1"></p>
+      <p data-t="sec01_p2"></p>
+      <p data-t="sec01_p3"></p>
+    </div>
+    <div class="call blue"><span class="ic">🧭</span><p data-t="call_method"></p></div>
+    <h3 style="margin-top:44px;font-size:20px" data-t="how_pipe_h"></h3>
+    <p class="sec-sub" style="margin-top:8px" data-t="how_pipe_sub"></p>
+    <div class="pipe" id="pipe"></div>
+  </div>
+</section>
+
+<!-- SKILL -->
+<section id="skill" class="anchor">
+  <div class="wrap">
+    <span class="sec-tag" data-t="sec02_tag"></span>
+    <h2 class="sec-h" data-t="sec02_h"></h2>
+    <p class="sec-sub" data-t="sec02_sub"></p>
+    <div class="prose">
+      <h3 style="font-size:19px;margin-top:34px" data-t="step0_h"></h3>
+      <p data-t="step0_p"></p>
+      <ul>
+        <li data-t="step0_li1"></li>
+        <li data-t="step0_li2"></li>
+        <li data-t="step0_li3"></li>
+        <li data-t="step0_li4"></li>
+        <li data-t="step0_li5"></li>
+      </ul>
+      <h3 style="font-size:19px;margin-top:30px" data-t="rules_h"></h3>
+      <p data-t="rules_p"></p>
+      <h3 style="font-size:19px;margin-top:30px" data-t="gates_h"></h3>
+      <p data-t="gates_p"></p>
+    </div>
+    <div class="install-card" style="margin-top:30px" data-file="files/skill/SKILL.md" data-card="plain">
+      <div class="copybar">
+        <h3 data-t="skill_src_h"></h3>
+        <div style="display:flex;gap:8px">
+          <button class="copyb ghost src-toggle"></button>
+          <button class="copyb copy-file" data-t="btn_copy"></button>
+          <a class="copyb ghost" href="files/skill/SKILL.md" download data-t="btn_download"></a>
+        </div>
+      </div>
+      <div class="src"><pre class="code"></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section id="agents" class="anchor">
+  <div class="wrap">
+    <span class="sec-tag" data-t="sec03_tag"></span>
+    <h2 class="sec-h" data-t="sec03_h"></h2>
+    <p class="sec-sub" data-t="sec03_sub"></p>
+    <div class="grid" id="agent-grid"></div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section id="install" class="anchor">
+  <div class="wrap">
+    <span class="sec-tag" data-t="sec04_tag"></span>
+    <h2 class="sec-h" data-t="sec04_h"></h2>
+    <p class="sec-sub" data-t="sec04_sub"></p>
+
+    <div class="call red"><span class="ic">⚠️</span><p data-t="call_origin"></p></div>
+
+    <div class="install-card">
+      <div class="copybar">
+        <h3 data-t="inst1_h"></h3>
+        <button class="copyb" id="copy-curl" data-t="btn_copy"></button>
+      </div>
+      <div class="cmd" id="curl-cmd"></div>
+      <p style="color:var(--mut);font-size:14px;margin:14px 0 0" data-t="inst1_note"></p>
+    </div>
+
+    <div class="install-card">
+      <div class="copybar"><h3 data-t="inst2_h"></h3></div>
+      <ol class="steps">
+        <li><h4 data-t="mstep1_h"></h4><p data-t="mstep1_p"></p></li>
+        <li><h4 data-t="mstep2_h"></h4><p data-t="mstep2_p"></p></li>
+        <li><h4 data-t="mstep3_h"></h4><p data-t="mstep3_p"></p></li>
+        <li><h4 data-t="mstep4_h"></h4><p data-t="mstep4_p"></p></li>
+        <li><h4 data-t="mstep5_h"></h4><p data-t="mstep5_p"></p></li>
+      </ol>
+    </div>
+
+    <h3 style="font-size:20px;margin-top:44px" data-t="deps_h"></h3>
+    <p class="sec-sub" style="margin-top:8px" data-t="deps_sub"></p>
+    <table class="deps">
+      <thead><tr><th data-t="deps_c1"></th><th data-t="deps_c2"></th><th data-t="deps_c3"></th></tr></thead>
+      <tbody>
+        <tr><td><code>WebSearch / WebFetch</code></td><td data-t="dep1_who"></td><td><span class="tag-opt" data-t="status_builtin"></span></td></tr>
+        <tr><td><code>Notion</code></td><td data-t="dep2_who"></td><td><span class="tag-req" data-t="status_req"></span></td></tr>
+        <tr><td><code>ChartMogul · HubSpot · Slack · Telegram</code></td><td data-t="dep3_who"></td><td><span class="tag-req" data-t="status_req"></span></td></tr>
+        <tr><td><code>Firecrawl</code></td><td data-t="dep4_who"></td><td><span class="tag-opt" data-t="status_opt"></span></td></tr>
+        <tr><td data-t="dep5_name"></td><td data-t="dep5_who"></td><td><span class="tag-req" data-t="status_canon"></span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="call"><span class="ic">🧩</span><p data-t="call_fixes"></p></div>
+    <div class="call green"><span class="ic">✅</span><p data-t="call_verify"></p></div>
+
+    <h3 style="font-size:20px;margin-top:44px" data-t="installall_h"></h3>
+    <div class="install-card" data-file="install.sh" data-card="plain">
+      <div class="copybar">
+        <h3 data-t="installsh_h"></h3>
+        <div style="display:flex;gap:8px">
+          <button class="copyb ghost src-toggle"></button>
+          <button class="copyb copy-file" data-t="btn_copy"></button>
+          <a class="copyb ghost" href="install.sh" download data-t="btn_download"></a>
+        </div>
+      </div>
+      <div class="src"><pre class="code"></pre></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="fauthor" data-t="footer_author"></span>
+    <span data-t="footer_line1"></span>
+    <span style="color:var(--dim)" data-t="footer_line2"></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LINK = "https://www.linkedin.com/in/vladislavderkach/en/";
+const AUTHOR_A = `<a href="${LINK}" target="_blank" rel="noopener">Uladzislau Dziarkach · Vladislav Derkach</a>`;
+
+/* ---------- i18n dictionary ---------- */
+const T = {
+  __title:{ru:"RedTrack Product Discovery Flow — скилл, 12 шагов, 15 саб-агентов", en:"RedTrack Product Discovery Flow — skill, 12 steps, 15 sub-agents"},
+  nav_how:{ru:"Как работает",en:"How it works"},
+  nav_skill:{ru:"Скилл",en:"Skill"},
+  nav_agents:{ru:"15 агентов",en:"15 agents"},
+  nav_install:{ru:"Установка",en:"Install"},
+  nav_cta:{ru:"Установить →",en:"Install →"},
+
+  hero_title:{ru:"Продуктовый Discovery как <span class='g'>конвейер из 15 агентов</span>",en:"Product Discovery as a <span class='g'>pipeline of 15 agents</span>"},
+  hero_lead:{ru:"Один скилл <code>/rt-product-discovery</code> оркестрирует цепочку из 12 шагов: от сырого брифа до готового отчёта в Notion на двух языках. Каждый шаг выполняет отдельный саб-агент, обученный методологии <strong>Advanced Jobs To Be Done</strong> Ивана Замесина. Ниже — как это устроено и как поставить себе за одну команду.",
+             en:"A single <code>/rt-product-discovery</code> skill orchestrates a 12-step chain: from a raw brief to a finished Notion report in two languages. Each step is run by a dedicated sub-agent trained in Ivan Zamesin's <strong>Advanced Jobs To Be Done</strong> methodology. Below — how it works and how to install it in one command."},
+  byline:{ru:`Автор: ${AUTHOR_A}`,en:`By ${AUTHOR_A}`},
+  hero_btn1:{ru:"Установить за 1 команду",en:"Install in 1 command"},
+  hero_btn2:{ru:"Посмотреть, как устроено",en:"See how it works"},
+  stat1:{ru:"скилл-оркестратор регистрирует всю цепочку",en:"orchestrator skill registers the whole chain"},
+  stat2:{ru:"шагов в конвейере (+2 параллельных блока)",en:"steps in the pipeline (+2 parallel blocks)"},
+  stat3:{ru:"саб-агентов, каждый со своей ролью",en:"sub-agents, each with its own role"},
+  stat4:{ru:"гейта качества, где конвейер может встать",en:"quality gates where the pipeline can halt"},
+
+  sec01_tag:{ru:"01 — Идея",en:"01 — The idea"},
+  sec01_h:{ru:"Что это вообще такое",en:"What this actually is"},
+  sec01_p1:{ru:"Представь, что тебе как продакт-менеджеру прилетела задача: «разберись, стоит ли нам делать вот эту фичу и для кого». Обычно это недели ручной работы — читать конкурентов, копаться в отзывах, сводить аналитику, формулировать сегменты, писать отчёт. <strong>Этот флоу превращает те же недели в один запуск команды.</strong>",
+             en:"Imagine you're a product manager and a task lands on you: \"figure out whether we should build this feature, and for whom.\" Normally that's weeks of manual work — reading competitors, digging through reviews, pulling analytics, defining segments, writing the report. <strong>This flow turns those weeks into a single run.</strong>"},
+  sec01_p2:{ru:"Ты пишешь бриф в свободной форме — а дальше по цепочке передаётся эстафета. Один агент структурирует запрос, другой поднимает контекст прошлых исследований, третий строит карту конкурентов, четвёртый читает сообщества, пятый проверяет, что все Jobs сформулированы по канону, шестой строит сегменты, и так далее — вплоть до финального отчёта, который сам публикуется в Notion на английском и русском.",
+             en:"You write a free-form brief — and from there a baton is passed down the chain. One agent structures the request, another recovers context from past research, a third maps competitors, a fourth reads communities, a fifth checks that every Job is phrased by the canon, a sixth builds segments, and so on — all the way to a final report that publishes itself to Notion in English and Russian."},
+  sec01_p3:{ru:"Ключевая идея — <span class='accent'>каждый агент отвечает строго за свою область</span> и не лезет в чужую. Оркестратор (скилл) знает порядок, знает, где можно распараллелить, и знает две точки, где нужно остановиться и показать результат человеку.",
+             en:"The core idea — <span class='accent'>each agent owns strictly its own area</span> and doesn't reach into anyone else's. The orchestrator (the skill) knows the order, knows where work can run in parallel, and knows the two points where it must stop and show a human the result."},
+  call_method:{ru:"<strong>Методология зашита во всех агентов.</strong> Это не generic «Jobs To Be Done» из учебников (Кристенсен), а <strong>Advanced JTBD Ивана Замесина</strong>: Job — это спецификация перехода State A → State B, формулируется как «Я хочу + инфинитив», уровни Big → Core → Small → Micro, где Small — сосед Core, а не шаг под ним. Отдельный агент-валидатор следит, чтобы никто не съехал в старую терминологию.",
+               en:"<strong>The methodology is baked into every agent.</strong> This is not the generic textbook \"Jobs To Be Done\" (Christensen) — it's <strong>Ivan Zamesin's Advanced JTBD</strong>: a Job is the spec of a State A → State B transition, phrased as \"I want to + verb\", with levels Big → Core → Small → Micro, where Small is a sibling of Core, not a step beneath it. A dedicated validator agent makes sure nobody drifts back into the old terminology."},
+  how_pipe_h:{ru:"Конвейер целиком",en:"The full pipeline"},
+  how_pipe_sub:{ru:"Слева — номер шага, справа — какой агент его выполняет. Блоки 3a–c и 4a–c запускаются <em>параллельно</em>. Жёлтым отмечены гейты.",
+                en:"Left — the step number, right — the agent that runs it. Blocks 3a–c and 4a–c run <em>in parallel</em>. Gates are marked in amber."},
+
+  sec02_tag:{ru:"02 — Оркестратор",en:"02 — Orchestrator"},
+  sec02_h:{ru:"Как устроен скилл, который держит всю цепочку",en:"How the skill that holds the whole chain works"},
+  sec02_sub:{ru:"Скилл <code>/rt-product-discovery</code> — это не код, а инструкция-промпт для Claude Code. Он не выполняет исследование сам: он <strong>собирает вводные и по очереди вызывает 15 агентов</strong>, передавая результат каждого следующему. Файл живёт по пути <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>.",
+             en:"The <code>/rt-product-discovery</code> skill is not code — it's an instruction prompt for Claude Code. It does no research itself: it <strong>collects the inputs and calls the 15 agents one by one</strong>, passing each result to the next. The file lives at <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>."},
+  step0_h:{ru:"Шаг 0 — интерактивный сбор вводных",en:"Step 0 — interactive intake"},
+  step0_p:{ru:"Прежде чем что-то запускать, скилл задаёт вопросы прямо в интерфейсе. <span class='accent'>Обязательное поле ровно одно — бриф.</span> Всё остальное имеет разумный дефолт, и запуск никогда не блокируется из-за вторичных полей:",
+           en:"Before running anything, the skill asks questions right in the interface. <span class='accent'>There is exactly one required field — the brief.</span> Everything else has a sensible default, and the run is never blocked by secondary fields:"},
+  step0_li1:{ru:"<strong>Бриф</strong> (обязательно) — что исследуем, зачем, какой вопрос стоит.",en:"<strong>Brief</strong> (required) — what to research, why, what question is on the table."},
+  step0_li2:{ru:"<strong>Автор</strong> — по умолчанию «Я (PM)».",en:"<strong>Author</strong> — defaults to \"Me (PM)\"."},
+  step0_li3:{ru:"<strong>Формат</strong> — по умолчанию полный отчёт из 14 секций.",en:"<strong>Format</strong> — defaults to the full 14-section report."},
+  step0_li4:{ru:"<strong>ROI</strong> — по умолчанию <em>пропускается</em> (шаг 9 не выполняется).",en:"<strong>ROI</strong> — <em>skipped</em> by default (step 9 doesn't run)."},
+  step0_li5:{ru:"<strong>Notion</strong> — по умолчанию создаётся новая страница в пространстве Product Discovery.",en:"<strong>Notion</strong> — by default a new page is created in the Product Discovery space."},
+  rules_h:{ru:"Глобальные правила, которые получает каждый агент",en:"The global rules every agent receives"},
+  rules_p:{ru:"Скилл вклеивает в задачу каждому агенту единый свод: (1) иерархия Jobs строго по Замесину — Big / Core / Small / Micro, где Small — сосед Core; (2) язык вывода — английский, если не сказано иначе; (3) целевые сегменты RedTrack по умолчанию (SMB e-commerce, DTC), исторические (affiliates, арбитражники) — отдельно; (4) единый мастер-документ (структурированный бриф) передаётся по всей цепочке и не теряется.",
+           en:"The skill injects a single ruleset into every agent's task: (1) the Job hierarchy strictly per Zamesin — Big / Core / Small / Micro, where Small is a sibling of Core; (2) output language is English unless stated otherwise; (3) RedTrack's default target segments (SMB e-commerce, DTC), with historical ones (affiliates, media buyers) kept separate; (4) one master document (the structured brief) travels through the whole chain and is never lost."},
+  gates_h:{ru:"Две точки, где конвейер останавливается",en:"Two points where the pipeline stops"},
+  gates_p:{ru:"Большинство шагов идут автоматически. Но на <strong>шаге 5</strong> (Canon Validator) вердикт <code>BLOCK</code> останавливает цепочку — формулировки Jobs надо поправить и перезапустить шаг. И на <strong>шаге 10.5</strong> (Slop &amp; Logic QA) находки уровня <code>HIGH</code> тоже требуют решения человека, прежде чем идти в перевод. Это защита от того, чтобы «протолкнуть» некачественный отчёт.",
+           en:"Most steps run automatically. But at <strong>step 5</strong> (Canon Validator) a <code>BLOCK</code> verdict halts the chain — the Job phrasing must be fixed and the step re-run. And at <strong>step 10.5</strong> (Slop &amp; Logic QA) <code>HIGH</code>-severity findings also require a human decision before moving to translation. This is the guard against pushing through a low-quality report."},
+  skill_src_h:{ru:"📄 Полный исходник <code style='font-size:13px'>SKILL.md</code>",en:"📄 Full <code style='font-size:13px'>SKILL.md</code> source"},
+
+  sec03_tag:{ru:"03 — Исполнители",en:"03 — The workers"},
+  sec03_h:{ru:"15 саб-агентов",en:"15 sub-agents"},
+  sec03_sub:{ru:"Каждая карточка — отдельный файл <code>~/.claude/agents/&lt;имя&gt;.md</code>: YAML-заголовок (имя, описание, модель, инструменты) + системный промпт. Разверни «Исходник», чтобы посмотреть и скопировать целиком, или скачай файл напрямую. Цвет полоски = фаза конвейера.",
+             en:"Each card is a separate file <code>~/.claude/agents/&lt;name&gt;.md</code>: a YAML header (name, description, model, tools) + the system prompt. Expand \"Source\" to view and copy it in full, or download the file directly. The stripe color = pipeline phase."},
+
+  sec04_tag:{ru:"04 — Установка",en:"04 — Installation"},
+  sec04_h:{ru:"Поставить себе в Claude Code",en:"Install into your Claude Code"},
+  sec04_sub:{ru:"Цель — чтобы после установки у тебя работала команда <kbd>/rt-product-discovery</kbd> и все 15 агентов были на месте. Ниже два способа: одной командой или вручную.",
+             en:"The goal — after installing, the <kbd>/rt-product-discovery</kbd> command works and all 15 agents are in place. Two ways below: one command, or manual."},
+  call_origin:{ru:"<strong>Важно про происхождение.</strong> Эти агенты заточены под рабочее пространство RedTrack — они лезут в конкретный Notion, Slack, ChartMogul, HubSpot, Telegram. Скопировать и запустить сможет любой, но для полного прогона нужно подключить те же коннекторы (см. таблицу зависимостей) либо адаптировать источники под себя. Агенты на <code>WebSearch/WebFetch</code> (карта рынка, конкуренты, тренды) работают у всех без настройки.",
+               en:"<strong>Important about provenance.</strong> These agents are tuned to RedTrack's workspace — they reach into a specific Notion, Slack, ChartMogul, HubSpot, Telegram. Anyone can copy and run them, but a full run needs the same connectors (see the dependency table) or you adapt the sources to your own. The <code>WebSearch/WebFetch</code> agents (market map, competitors, trends) work for everyone with no setup."},
+  inst1_h:{ru:"⚡️ Способ 1 — одной командой",en:"⚡️ Option 1 — one command"},
+  inst1_note:{ru:"Скрипт создаёт папки <code>~/.claude/agents</code> и <code>~/.claude/skills/rt-product-discovery</code> и скачивает в них все файлы с этого сайта. Ничего в системе, кроме этих файлов, не трогает. После — перезапусти Claude Code.",
+              en:"The script creates <code>~/.claude/agents</code> and <code>~/.claude/skills/rt-product-discovery</code> and downloads all files from this site into them. It touches nothing else on your system. Then restart Claude Code."},
+  inst2_h:{ru:"🛠 Способ 2 — вручную",en:"🛠 Option 2 — manual"},
+  mstep1_h:{ru:"Создай папки",en:"Create the folders"},
+  mstep1_p:{ru:"<code>mkdir -p ~/.claude/agents ~/.claude/skills/rt-product-discovery</code>",en:"<code>mkdir -p ~/.claude/agents ~/.claude/skills/rt-product-discovery</code>"},
+  mstep2_h:{ru:"Положи 15 агентов",en:"Drop in the 15 agents"},
+  mstep2_p:{ru:"Скачай (или скопируй кнопкой «Копировать») каждый файл из раздела <a href='#agents' style='color:var(--red)'>15 агентов</a> в <code>~/.claude/agents/&lt;имя&gt;.md</code>. Имя файла = ссылка «Скачать» на карточке.",
+             en:"Download (or use the \"Copy\" button for) each file from the <a href='#agents' style='color:var(--red)'>15 agents</a> section into <code>~/.claude/agents/&lt;name&gt;.md</code>. The file name = the \"Download\" link on the card."},
+  mstep3_h:{ru:"Положи скилл",en:"Drop in the skill"},
+  mstep3_p:{ru:"Скачай <a href='files/skill/SKILL.md' download style='color:var(--red)'>SKILL.md</a> в <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>.",
+             en:"Download <a href='files/skill/SKILL.md' download style='color:var(--red)'>SKILL.md</a> into <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>."},
+  mstep4_h:{ru:"Перезапусти Claude Code",en:"Restart Claude Code"},
+  mstep4_p:{ru:"Чтобы он подхватил новые агенты и скилл. Проверь командой <kbd>/agents</kbd> — должно появиться 15 новых.",
+             en:"So it picks up the new agents and skill. Check with <kbd>/agents</kbd> — 15 new ones should appear."},
+  mstep5_h:{ru:"Запусти",en:"Run it"},
+  mstep5_p:{ru:"<code>/rt-product-discovery</code> — и опиши задачу, когда спросит. Или сразу: <code>/rt-product-discovery нужно понять, стоит ли делать X для сегмента Y</code>.",
+             en:"<code>/rt-product-discovery</code> — and describe the task when asked. Or inline: <code>/rt-product-discovery figure out whether we should build X for segment Y</code>."},
+  deps_h:{ru:"Что нужно подключить для полного прогона",en:"What to connect for a full run"},
+  deps_sub:{ru:"WebSearch/WebFetch встроены в Claude Code. Остальное — внешние коннекторы (MCP), которые авторизуются через <kbd>/mcp</kbd> или настройки коннекторов claude.ai. Без них соответствующие шаги просто вернут «нет данных», но конвейер не сломается.",
+            en:"WebSearch/WebFetch are built into Claude Code. The rest are external connectors (MCP), authorized via <kbd>/mcp</kbd> or the claude.ai connector settings. Without them the relevant steps simply return \"no data\" — the pipeline won't break."},
+  deps_c1:{ru:"Зависимость",en:"Dependency"},
+  deps_c2:{ru:"Кому нужна",en:"Who needs it"},
+  deps_c3:{ru:"Статус",en:"Status"},
+  dep1_who:{ru:"Market &amp; Source Map, Feature Intelligence, Community Signals, Trend Analyst, Segmentation, ROI",en:"Market &amp; Source Map, Feature Intelligence, Community Signals, Trend Analyst, Segmentation, ROI"},
+  dep2_who:{ru:"Context Recovery, Knowledge Base, Canon Validator, Final Report, Slop QA, Translation",en:"Context Recovery, Knowledge Base, Canon Validator, Final Report, Slop QA, Translation"},
+  dep3_who:{ru:"RT Analytics Agent (шаги 3c и 8)",en:"RT Analytics Agent (steps 3c and 8)"},
+  dep4_who:{ru:"Context Recovery, Knowledge Base — иначе fallback на WebFetch",en:"Context Recovery, Knowledge Base — otherwise falls back to WebFetch"},
+  dep5_name:{ru:"Канон Next Move Theory на диске",en:"Next Move Theory canon on disk"},
+  dep5_who:{ru:"AJTBD Canon Validator читает файлы канона перед проверкой",en:"AJTBD Canon Validator reads the canon files before validating"},
+  status_builtin:{ru:"встроено",en:"built-in"},
+  status_req:{ru:"нужно подключить",en:"connect required"},
+  status_opt:{ru:"опционально",en:"optional"},
+  status_canon:{ru:"нужен канон",en:"canon required"},
+  call_fixes:{ru:"<strong>Две правки, если что-то не завелось.</strong> <u>Поле <code>model:</code></u> в некоторых агентах указывает конкретные ID (<code>claude-sonnet-4-6</code>, <code>claude-opus-4-6</code>, <code>claude-haiku-4-5-…</code>) — если твой Claude Code их не знает, замени на алиас <code>sonnet</code> / <code>opus</code> / <code>haiku</code> или просто удали строку (агент унаследует модель сессии). <u>Поле <code>tools:</code></u> у Canon Validator и Slop QA содержит MCP-имена с ID сервера, специфичным для этого аккаунта (<code>mcp__189b7469…</code>) — подключи свой Notion и поправь эти имена, либо удали блок <code>tools:</code>, чтобы агент получил инструменты по умолчанию.",
+              en:"<strong>Two fixes if something doesn't start.</strong> <u>The <code>model:</code> field</u> in some agents names specific IDs (<code>claude-sonnet-4-6</code>, <code>claude-opus-4-6</code>, <code>claude-haiku-4-5-…</code>) — if your Claude Code doesn't know them, swap for the alias <code>sonnet</code> / <code>opus</code> / <code>haiku</code> or just delete the line (the agent inherits the session model). <u>The <code>tools:</code> field</u> in Canon Validator and Slop QA contains MCP names with a server ID specific to this account (<code>mcp__189b7469…</code>) — connect your own Notion and fix those names, or delete the <code>tools:</code> block so the agent gets the default tools."},
+  call_verify:{ru:"<strong>Как понять, что всё встало.</strong> Открой Claude Code → <kbd>/agents</kbd>: в списке должны быть все 15 (Discovery Request Agent, Context Recovery RT Agent, … Report Translation Agent). Скилл проверяется так: набери <kbd>/</kbd> и найди <code>rt-product-discovery</code> в списке. Запусти его на маленьком тестовом брифе — первым делом он задаст вопросы Шага 0.",
+               en:"<strong>How to know it's all in.</strong> Open Claude Code → <kbd>/agents</kbd>: the list should show all 15 (Discovery Request Agent, Context Recovery RT Agent, … Report Translation Agent). Check the skill by typing <kbd>/</kbd> and finding <code>rt-product-discovery</code> in the list. Run it on a small test brief — it will first ask the Step 0 questions."},
+  installall_h:{ru:"Установить сразу всё разом",en:"Install everything at once"},
+  installsh_h:{ru:"📄 Исходник <code style='font-size:13px'>install.sh</code>",en:"📄 <code style='font-size:13px'>install.sh</code> source"},
+
+  btn_copy:{ru:"Копировать",en:"Copy"},
+  btn_download:{ru:"Скачать",en:"Download"},
+
+  footer_author:{ru:`Автор: ${AUTHOR_A}`,en:`Author: ${AUTHOR_A}`},
+  footer_line1:{ru:"RedTrack Product Discovery Flow · методология AJTBD (Иван Замесин) · для Claude Code",en:"RedTrack Product Discovery Flow · AJTBD methodology (Ivan Zamesin) · for Claude Code"},
+  footer_line2:{ru:"Собрано для внутреннего использования. Адаптируй источники под своё рабочее пространство.",en:"Built for internal use. Adapt the sources to your own workspace."},
+};
+
+/* ---------- pipeline data ---------- */
+const PIPE = [
+  {step:{ru:"Шаг 1",en:"Step 1"},phase:"prep",cards:[{n:"Discovery Request Agent",d:{ru:"Сырой бриф → структурированный запрос",en:"Raw brief → structured request"}}]},
+  {step:{ru:"Шаг 2",en:"Step 2"},phase:"prep",cards:[{n:"Context Recovery RT Agent",d:{ru:"Поднимает прошлые Discovery-отчёты, ищет белые пятна",en:"Recovers past Discovery reports, finds blind spots"}}]},
+  {step:{ru:"Шаг 3",en:"Step 3"},phase:"data",parallel:true,cards:[
+    {badge:"3a",n:"Market & Source Map",d:{ru:"Карта рынка и источников",en:"Market & source map"}},
+    {badge:"3b",n:"Knowledge Base RT Check",d:{ru:"help.redtrack.io + Notion Dev",en:"help.redtrack.io + Notion Dev"}},
+    {badge:"3c",n:"RT Analytics",d:{ru:"ChartMogul / HubSpot / Slack / TG",en:"ChartMogul / HubSpot / Slack / TG"}}]},
+  {step:{ru:"Шаг 4",en:"Step 4"},phase:"comp",parallel:true,cards:[
+    {badge:"4a",n:"Feature Intelligence",d:{ru:"Разбор фичи у конкурентов",en:"Feature teardown vs competitors"}},
+    {badge:"4b",n:"Community Signals",d:{ru:"Reddit / G2 / Capterra / соцсети",en:"Reddit / G2 / Capterra / social"}},
+    {badge:"4c",n:"Trend Analyst",d:{ru:"Слабые сигналы и тренды",en:"Weak signals & trends"}}]},
+  {step:{ru:"Шаг 5 · ГЕЙТ",en:"Step 5 · GATE"},phase:"gate",gate:true,cards:[{badge:"PASS / BLOCK",n:"AJTBD Canon Validator",d:{ru:"BLOCK → стоп, поправить формулировки, перезапуск",en:"BLOCK → stop, fix phrasing, re-run"}}]},
+  {step:{ru:"Шаг 6",en:"Step 6"},phase:"seg",cards:[{n:"AJTBD Segmentation Agent",d:{ru:"Job Graph → сегменты с приоритетами",en:"Job Graph → prioritized segments"}}]},
+  {step:{ru:"Шаг 7",en:"Step 7"},phase:"seg",cards:[{n:"Discovery QA & PM Action Agent",d:{ru:"QA качества + ручной to-do для PM",en:"Quality QA + manual PM to-do"}}]},
+  {step:{ru:"Шаг 8",en:"Step 8"},phase:"seg",cards:[{n:"RT Analytics Agent",note:{ru:"(повторно)",en:"(again)"},d:{ru:"Закрывает пробелы из шага 7",en:"Closes gaps from step 7"}}]},
+  {step:{ru:"Шаг 9",en:"Step 9"},phase:"rep",opt:true,cards:[{n:"Market Opportunity & ROI",d:{ru:"TAM/SAM/SOM — по умолчанию пропускается",en:"TAM/SAM/SOM — skipped by default"}}]},
+  {step:{ru:"Шаг 10",en:"Step 10"},phase:"rep",cards:[{n:"Discovery Final Report Agent",d:{ru:"Отчёт (14 секций) → Notion (EN)",en:"Report (14 sections) → Notion (EN)"}}]},
+  {step:{ru:"Шаг 10.5 · ГЕЙТ",en:"Step 10.5 · GATE"},phase:"gate",gate:true,cards:[{badge:{ru:"HIGH → стоп",en:"HIGH → stop"},n:"Slop & Logic QA Agent",d:{ru:"Ловит AI-слоп и логические дыры",en:"Catches AI slop & logic holes"}}]},
+  {step:{ru:"Шаг 11",en:"Step 11"},phase:"rep",cards:[{n:"Report Translation Agent",d:{ru:"Перевод → Notion (RU)",en:"Translation → Notion (RU)"}}]},
+];
+
+/* ---------- agents data ---------- */
+const AGENTS = [
+  {slug:"discovery-request-agent",name:"Discovery Request Agent",step:{ru:"Шаг 1",en:"Step 1"},phase:"prep",model:"sonnet-4-6",
+   tools:{ru:"все (нужен только текст)",en:"all (text only)"},needs:[],
+   role:{ru:"Причёсывает сырой бриф в структурированный Discovery Request: research question, сегменты по Job Graph, scope, предположения, ожидаемый результат. Решений намеренно не предлагает.",
+         en:"Turns a raw brief into a structured Discovery Request: research question, segments by Job Graph, scope, assumptions, expected outcome. Deliberately proposes no solutions."}},
+  {slug:"context-recovery-rt-agent",name:"Context Recovery RT Agent",step:{ru:"Шаг 2",en:"Step 2"},phase:"prep",model:"sonnet-4-6",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"},{ru:"Firecrawl (опц.)",en:"Firecrawl (opt.)"}],
+   role:{ru:"Читает прошлые Discovery-отчёты в Notion, достаёт уже изученных конкурентов, задокументированные Jobs (переводя старый Christensen-формат в канон Замесина) и покрытые сегменты. Возвращает список белых пятен.",
+         en:"Reads past Discovery reports in Notion and extracts already-studied competitors, documented Jobs (converting old Christensen phrasing into the Zamesin canon) and covered segments. Returns a list of blind spots."}},
+  {slug:"market-source-map-agent",name:"Market & Source Map Agent",step:{ru:"Шаг 3a",en:"Step 3a"},phase:"data",model:"sonnet-4-6",
+   tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
+   role:{ru:"Строит карту рынка: прямые конкуренты, субституты, смежные решения → для каждого сегмент, Job и первичные источники. Отдаёт строго JSON, без прозы.",
+         en:"Builds the market map: direct competitors, substitutes, adjacent solutions → segment, Job and primary sources for each. Returns strict JSON, no prose."}},
+  {slug:"knowledge-base-rt-check-agent",name:"Knowledge Base RT Check Agent",step:{ru:"Шаг 3b",en:"Step 3b"},phase:"data",model:"sonnet-4-6",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"},{ru:"Web/Firecrawl",en:"Web/Firecrawl"}],
+   role:{ru:"Прочёсывает базу знаний help.redtrack.io и раздел Development в Notion: релевантные фичи, техограничения, что уже реализовано или запланировано.",
+         en:"Combs the help.redtrack.io knowledge base and the Development section in Notion: relevant features, technical limits, what's already shipped or planned."}},
+  {slug:"rt-analytics-agent",name:"RT Analytics Agent",step:{ru:"Шаги 3c · 8",en:"Steps 3c · 8"},phase:"data",model:"sonnet-4-6",
+   tools:{ru:"все",en:"all"},needs:[{ru:"ChartMogul",en:"ChartMogul"},{ru:"HubSpot",en:"HubSpot"},{ru:"Slack",en:"Slack"},{ru:"Telegram",en:"Telegram"}],
+   role:{ru:"Снимает данные с подключённых платформ: ChartMogul (MRR/churn/ARPA/LTV), HubSpot (сделки, win/loss), Slack (#Customer-Feedback, #Data-Analytics, #Support), Telegram. Даёт количественный + качественный срез с разбивкой по сегментам.",
+         en:"Pulls data from connected platforms: ChartMogul (MRR/churn/ARPA/LTV), HubSpot (deals, win/loss), Slack (#Customer-Feedback, #Data-Analytics, #Support), Telegram. Delivers a quantitative + qualitative slice broken down by segment."}},
+  {slug:"feature-intelligence-agent",name:"Feature Intelligence Agent",step:{ru:"Шаг 4a",en:"Step 4a"},phase:"comp",model:"sonnet-4-6",
+   tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
+   role:{ru:"Глубокий разбор конкретной фичи у 2–5 конкурентов: какой Core Job закрывает, продуктовая логика, трейд-оффы, готовность к масштабу. Мышление senior PM + discovery lead + архитектор B2B SaaS.",
+         en:"Deep dive on one specific feature across 2–5 competitors: which Core Job it serves, product logic, trade-offs, scale readiness. Thinks as senior PM + discovery lead + B2B SaaS architect."}},
+  {slug:"community-signal-intelligence-agent",name:"Community Signal Intelligence Agent",step:{ru:"Шаг 4b",en:"Step 4b"},phase:"comp",model:"opus-4-6",
+   tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
+   role:{ru:"Собирает публичные сигналы (Reddit, G2, Capterra, Trustpilot, соцсети): реальные боли, обходные пути, триггеры переключения и покупки, эмоции — через линзу AJTBD. Единственный агент на Opus.",
+         en:"Gathers public signals (Reddit, G2, Capterra, Trustpilot, social): real pains, workarounds, switching and purchase triggers, emotions — through the AJTBD lens. The only agent on Opus."}},
+  {slug:"trend-analyst",name:"Trend Analyst",step:{ru:"Шаг 4c",en:"Step 4c"},phase:"comp",model:"sonnet-4-6",
+   tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
+   role:{ru:"Ловит слабые сигналы и формирующиеся тренды, которых ещё нет у конкурентов и которые пользователи явно не проговаривают: техсдвиги, регуляторка, изменения поведения. Строит 2–4 сценария с диапазонами вероятностей.",
+         en:"Catches weak signals and emerging trends not yet visible in competitors and not explicitly voiced by users: tech shifts, regulation, behavior changes. Builds 2–4 scenarios with probability ranges."}},
+  {slug:"ajtbd-canon-validator",name:"AJTBD Canon Validator",step:{ru:"Шаг 5 · ГЕЙТ",en:"Step 5 · GATE"},phase:"gate",model:"sonnet",
+   tools:{ru:"Read, Grep, Glob, Bash, Notion",en:"Read, Grep, Glob, Bash, Notion"},needs:[{ru:"Notion",en:"Notion"},{ru:"Канон NMT на диске",en:"NMT canon on disk"}],
+   role:{ru:"Проверяет каждый Job, уровень и критерий успеха против канона Замесина. Вердикт PASS / BLOCK со списком находок. При BLOCK конвейер стоп. Сам ничего не переписывает.",
+         en:"Checks every Job, level and success criterion against Zamesin's canon. Verdict PASS / BLOCK with a list of findings. On BLOCK the pipeline stops. Rewrites nothing itself."}},
+  {slug:"ajtbd-segmentation-agent",name:"AJTBD Segmentation Agent",step:{ru:"Шаг 6",en:"Step 6"},phase:"seg",model:"sonnet-4-6",
+   tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
+   role:{ru:"Строит Job Graph (Big → Core → Small → Micro) и группирует людей в сегменты по схожести Job Graph + критериев успеха. Оценивает сегменты по ценности, прибыльности, масштабируемости и Critical Chain.",
+         en:"Builds the Job Graph (Big → Core → Small → Micro) and clusters people into segments by Job Graph + success-criteria similarity. Scores segments on value, profitability, scalability and the Critical Chain."}},
+  {slug:"discovery-qa-agent",name:"Discovery QA & PM Action Agent",step:{ru:"Шаг 7",en:"Step 7"},phase:"seg",model:"sonnet-4-6",
+   tools:{ru:"все",en:"all"},needs:[],
+   role:{ru:"Оценивает качество исследования (стратегическое соответствие, покрытие сегментов, качество Jobs и доказательств), ставит флаги и формирует список доп-запросов к аналитике + ручной to-do для PM (интервью, экспорт UserPilot, разговоры с Sales).",
+         en:"Audits research quality (strategic fit, segment coverage, Job and evidence quality), raises flags and produces a list of extra analytics queries + a manual PM to-do (interviews, UserPilot export, talks with Sales)."}},
+  {slug:"market-opportunity-roi-agent",name:"Market Opportunity & ROI Calculator Agent",step:{ru:"Шаг 9 · опц.",en:"Step 9 · opt."},phase:"rep",model:"opus-4-6",
+   tools:{ru:"все",en:"all"},needs:[{ru:"WebSearch",en:"WebSearch"}],
+   role:{ru:"Считает рыночную возможность: TAM/SAM/SOM двумя методами (top-down + bottom-up), воронку аудитории, ценообразование конкурентов, экономический потенциал сегментов по 4 измерениям. По умолчанию пропускается.",
+         en:"Sizes the opportunity: TAM/SAM/SOM two ways (top-down + bottom-up), audience funnel, competitor pricing, segment economics across 4 dimensions. Skipped by default."}},
+  {slug:"discovery-final-report-agent",name:"Discovery Final Report Agent",step:{ru:"Шаг 10",en:"Step 10"},phase:"rep",model:"haiku-4-5",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"}],
+   role:{ru:"Форматирует одобренные находки в трёхслойный Discovery-отчёт (14 секций: Exec для CEO, Body для PDM, Appendix) и постит в Notion на английском. Новых выводов не придумывает — только форматирует.",
+         en:"Formats approved findings into a three-layer Discovery report (14 sections: Exec for CEO, Body for PDM, Appendix) and posts it to Notion in English. Invents no new conclusions — only formats."}},
+  {slug:"slop-logic-qa-agent",name:"Slop & Logic QA Agent",step:{ru:"Шаг 10.5 · ГЕЙТ",en:"Step 10.5 · GATE"},phase:"gate",model:"sonnet",
+   tools:{ru:"Notion, Bash, Read",en:"Notion, Bash, Read"},needs:[{ru:"Notion",en:"Notion"}],
+   role:{ru:"Читает готовый отчёт из Notion и ловит AI-слоп (расплывчатости, circular reasoning, пустые превосходства) и логические нестыковки между секциями — с цитатами и severity HIGH/MED/LOW. При HIGH конвейер стоп.",
+         en:"Reads the finished report from Notion and catches AI slop (vagueness, circular reasoning, hollow superlatives) and logical inconsistencies between sections — with quotes and HIGH/MED/LOW severity. On HIGH the pipeline stops."}},
+  {slug:"report-translation-agent",name:"Report Translation Agent",step:{ru:"Шаг 11",en:"Step 11"},phase:"rep",model:"sonnet",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"}],
+   role:{ru:"Переводит финальный отчёт с английского на русский, сохраняя структуру, форматирование и Notion-совместимость (термины и лейблы AJTBD остаются на английском). Публикует RU-версию отдельной страницей.",
+         en:"Translates the final report from English to Russian, preserving structure, formatting and Notion compatibility (AJTBD terms and labels stay in English). Publishes the RU version as a separate page."}},
+];
+
+const PHASE_VAR = {prep:"blue",data:"teal",comp:"violet",gate:"amber",seg:"green",rep:"red"};
+
+function detectLang(){
+  const saved = localStorage.getItem("df_lang");
+  if(saved==="ru"||saved==="en") return saved;                 // explicit user choice wins
+  const nav = ((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase();
+  return nav.startsWith("ru") ? "ru" : "en";                   // otherwise follow browser locale
+}
+let lang = detectLang();
+const $ = s=>document.querySelector(s);
+const tt = (o)=> (o && typeof o==="object") ? (o[lang]??o.en) : o;
+function el(html){const t=document.createElement("template");t.innerHTML=html.trim();return t.content.firstChild;}
+
+/* ---------- render pipeline ---------- */
+function renderPipe(){
+  const box = $("#pipe"); box.innerHTML="";
+  PIPE.forEach(row=>{
+    const tag = row.parallel ? `<span class="par">${lang==='ru'?'∥ параллельно':'∥ parallel'}</span>` : (row.opt?`<span class="par">${lang==='ru'?'опц.':'opt.'}</span>`:"");
+    const cards = row.cards.map(c=>{
+      const badge = c.badge ? `<span class="badge">${tt(c.badge)}</span>` : "";
+      const note = c.note ? ` <span style="color:var(--dim);font-weight:400">${tt(c.note)}</span>` : "";
+      return `<div class="pcard c-${row.phase}">${badge}<div class="pn">${c.n}${note}</div><div class="pd">${tt(c.d)}</div></div>`;
+    }).join("");
+    box.appendChild(el(`<div class="prow ${row.gate?'gate-row':''}"><div class="pstep">${tt(row.step)} ${tag}</div><div class="pcards">${cards}</div></div>`));
+  });
+}
+
+/* ---------- render agents ---------- */
+function renderAgents(){
+  const grid = $("#agent-grid"); grid.innerHTML="";
+  AGENTS.forEach(a=>{
+    const needs = a.needs.map(n=>`<span class="chip need">${tt(n)}</span>`).join("");
+    const card = el(`<div class="agent" data-file="files/agents/${a.slug}.md" data-card="agent" style="--c:var(--${PHASE_VAR[a.phase]})">
+      <div class="top"><h3>${a.name}</h3><span class="stepb">${tt(a.step)}</span></div>
+      <div class="role">${tt(a.role)}</div>
+      <div class="meta"><span class="chip m">🧠 ${a.model}</span><span class="chip">🔧 ${tt(a.tools)}</span>${needs}</div>
+      <div class="acts">
+        <button class="sbtn src-toggle"></button>
+        <button class="sbtn copy-file">⧉ ${tt(T.btn_copy)}</button>
+        <a class="sbtn" href="files/agents/${a.slug}.md" download>↓ ${a.slug}.md</a>
+      </div>
+      <div class="src"><div class="srchead"><span>~/.claude/agents/${a.slug}.md</span></div><pre class="code"></pre></div>
+    </div>`);
+    grid.appendChild(card);
+  });
+}
+
+/* ---------- source toggle labels ---------- */
+function toggleLabel(host){
+  const open = host.querySelector(".src")?.classList.contains("open");
+  const agent = host.dataset.card==="agent";
+  if(agent) return open ? (lang==='ru'?'‹ / › Скрыть':'‹ / › Hide') : (lang==='ru'?'‹ / › Исходник':'‹ / › Source');
+  return open ? (lang==='ru'?'Скрыть':'Hide') : (lang==='ru'?'Показать':'Show');
+}
+function updateToggleLabels(){ document.querySelectorAll(".src-toggle").forEach(b=>{const h=b.closest("[data-file]"); if(h) b.textContent=toggleLabel(h);}); }
+
+/* ---------- curl command ---------- */
+function buildCurl(){
+  const c = $("#curl-cmd"); if(!c) return;
+  const note = lang==='ru' ? "# поставит 15 агентов + скилл в ~/.claude/" : "# installs 15 agents + the skill into ~/.claude/";
+  c.innerHTML = `<span class="c">${note}</span><br><span class="p">curl</span> -fsSL ${location.origin}/install.sh | bash`;
+}
+
+/* ---------- set language ---------- */
+function setLang(l){
+  lang = l; localStorage.setItem("df_lang", l);
+  document.documentElement.setAttribute("data-lang", l);
+  document.documentElement.lang = l;
+  document.title = T.__title[l];
+  document.querySelectorAll("[data-t]").forEach(e=>{ const k=e.dataset.t; if(T[k]) e.innerHTML = T[k][l]; });
+  document.querySelectorAll(".langbtn").forEach(b=>b.classList.toggle("on", b.dataset.l===l));
+  renderPipe(); renderAgents(); buildCurl(); updateToggleLabels();
+}
+
+/* ---------- interactions ---------- */
+const toast = $("#toast"); let toastT;
+function showToast(msg){ toast.textContent=msg; toast.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>toast.classList.remove("show"),1600); }
+const cache={};
+async function fetchFile(path){ if(cache[path]) return cache[path]; const r=await fetch(path); if(!r.ok) throw new Error("HTTP "+r.status); const t=await r.text(); cache[path]=t; return t; }
+
+document.addEventListener("click", async (e)=>{
+  const lb = e.target.closest(".langbtn");
+  if(lb){ setLang(lb.dataset.l); return; }
+  if(e.target.id==="copy-curl"){
+    const cmd = `curl -fsSL ${location.origin}/install.sh | bash`;
+    try{ await navigator.clipboard.writeText(cmd); showToast(lang==='ru'?"Команда скопирована":"Command copied"); }catch(_){ showToast(lang==='ru'?"Не удалось скопировать":"Copy failed"); }
+    return;
+  }
+  const host = e.target.closest("[data-file]"); if(!host) return;
+  const path = host.getAttribute("data-file");
+  if(e.target.classList.contains("copy-file")){
+    try{ const t=await fetchFile(path); await navigator.clipboard.writeText(t); showToast(lang==='ru'?"Скопировано в буфер":"Copied to clipboard"); }
+    catch(_){ showToast(lang==='ru'?"Ошибка — скачай файл напрямую":"Error — download the file directly"); }
+    return;
+  }
+  if(e.target.classList.contains("src-toggle")){
+    const boxEl = host.querySelector(".src"); const pre = boxEl.querySelector("pre.code");
+    const opening = !boxEl.classList.contains("open");
+    boxEl.classList.toggle("open");
+    if(opening && !pre.dataset.loaded){
+      try{ pre.textContent = await fetchFile(path); pre.dataset.loaded="1"; }
+      catch(_){ pre.textContent = (lang==='ru'?"Не удалось загрузить исходник. Открой файл напрямую: ":"Could not load source. Open the file directly: ")+path; }
+    }
+    updateToggleLabels();
+  }
+});
+
+setLang(lang);
+</script>
+</body>
+</html>
