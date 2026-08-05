@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RedTrack Product Discovery Flow — skill, 12 steps, 15 sub-agents</title>
-<meta name="description" content="How the /rt-product-discovery skill works, what all 15 sub-agents do, and how to install them into your Claude Code in one command." />
+<title>Product Discovery Flow — skill, 12 steps, 15 sub-agents</title>
+<meta name="description" content="How the /product-discovery skill works, what all 15 sub-agents do, and how to install them into your Claude Code in one command." />
 <meta name="author" content="Uladzislau Dziarkach (Vladislav Derkach)" />
 <style>
   :root{
@@ -172,7 +172,7 @@
 
 <header id="top">
   <div class="wrap hero">
-    <span class="eyebrow"><span class="dot" style="width:8px;height:8px"></span>RedTrack · AJTBD · Claude Code</span>
+    <span class="eyebrow"><span class="dot" style="width:8px;height:8px"></span>AJTBD · Claude Code · MIT</span>
     <h1 data-t="hero_title"></h1>
     <p class="lead" data-t="hero_lead"></p>
     <p class="byline" data-t="byline"></p>
@@ -216,6 +216,7 @@
       <h3 style="font-size:19px;margin-top:34px" data-t="step0_h"></h3>
       <p data-t="step0_p"></p>
       <ul>
+        <li data-t="step0_li0"></li>
         <li data-t="step0_li1"></li>
         <li data-t="step0_li2"></li>
         <li data-t="step0_li3"></li>
@@ -275,6 +276,7 @@
         <li><h4 data-t="mstep1_h"></h4><p data-t="mstep1_p"></p></li>
         <li><h4 data-t="mstep2_h"></h4><p data-t="mstep2_p"></p></li>
         <li><h4 data-t="mstep3_h"></h4><p data-t="mstep3_p"></p></li>
+        <li><h4 data-t="mstep35_h"></h4><p data-t="mstep35_p"></p></li>
         <li><h4 data-t="mstep4_h"></h4><p data-t="mstep4_p"></p></li>
         <li><h4 data-t="mstep5_h"></h4><p data-t="mstep5_p"></p></li>
       </ol>
@@ -286,8 +288,8 @@
       <thead><tr><th data-t="deps_c1"></th><th data-t="deps_c2"></th><th data-t="deps_c3"></th></tr></thead>
       <tbody>
         <tr><td><code>WebSearch / WebFetch</code></td><td data-t="dep1_who"></td><td><span class="tag-opt" data-t="status_builtin"></span></td></tr>
-        <tr><td><code>Notion</code></td><td data-t="dep2_who"></td><td><span class="tag-req" data-t="status_req"></span></td></tr>
-        <tr><td><code>ChartMogul · HubSpot · Slack · Telegram</code></td><td data-t="dep3_who"></td><td><span class="tag-req" data-t="status_req"></span></td></tr>
+        <tr><td data-t="dep2_name"></td><td data-t="dep2_who"></td><td><span class="tag-req" data-t="status_req"></span></td></tr>
+        <tr><td data-t="dep3_name"></td><td data-t="dep3_who"></td><td><span class="tag-req" data-t="status_req"></span></td></tr>
         <tr><td><code>Firecrawl</code></td><td data-t="dep4_who"></td><td><span class="tag-opt" data-t="status_opt"></span></td></tr>
         <tr><td data-t="dep5_name"></td><td data-t="dep5_who"></td><td><span class="tag-req" data-t="status_canon"></span></td></tr>
       </tbody>
@@ -327,7 +329,7 @@ const AUTHOR_A = `<a href="${LINK}" target="_blank" rel="noopener">Uladzislau Dz
 
 /* ---------- i18n dictionary ---------- */
 const T = {
-  __title:{ru:"RedTrack Product Discovery Flow — скилл, 12 шагов, 15 саб-агентов", en:"RedTrack Product Discovery Flow — skill, 12 steps, 15 sub-agents"},
+  __title:{ru:"Product Discovery Flow — скилл, 12 шагов, 15 саб-агентов", en:"Product Discovery Flow — skill, 12 steps, 15 sub-agents"},
   nav_how:{ru:"Как работает",en:"How it works"},
   nav_skill:{ru:"Скилл",en:"Skill"},
   nav_agents:{ru:"15 агентов",en:"15 agents"},
@@ -335,8 +337,8 @@ const T = {
   nav_cta:{ru:"Установить →",en:"Install →"},
 
   hero_title:{ru:"Продуктовый Discovery как <span class='g'>конвейер из 15 агентов</span>",en:"Product Discovery as a <span class='g'>pipeline of 15 agents</span>"},
-  hero_lead:{ru:"Один скилл <code>/rt-product-discovery</code> оркестрирует цепочку из 12 шагов: от сырого брифа до готового отчёта в Notion на двух языках. Каждый шаг выполняет отдельный саб-агент, обученный методологии <strong>Advanced Jobs To Be Done</strong> Ивана Замесина. Ниже — как это устроено и как поставить себе за одну команду.",
-             en:"A single <code>/rt-product-discovery</code> skill orchestrates a 12-step chain: from a raw brief to a finished Notion report in two languages. Each step is run by a dedicated sub-agent trained in Ivan Zamesin's <strong>Advanced Jobs To Be Done</strong> methodology. Below — how it works and how to install it in one command."},
+  hero_lead:{ru:"Один скилл <code>/product-discovery</code> оркестрирует цепочку из 12 шагов: от сырого брифа до готового отчёта, опубликованного там, где у тебя живёт документация. Каждый шаг выполняет отдельный саб-агент, обученный методологии <strong>Advanced Jobs To Be Done</strong> Ивана Замесина. Ниже — как это устроено и как поставить себе за одну команду.",
+             en:"A single <code>/product-discovery</code> skill orchestrates a 12-step chain: from a raw brief to a finished report, published wherever your docs live. Each step is run by a dedicated sub-agent trained in Ivan Zamesin's <strong>Advanced Jobs To Be Done</strong> methodology. Below — how it works and how to install it in one command."},
   byline:{ru:`Автор: ${AUTHOR_A}`,en:`By ${AUTHOR_A}`},
   hero_btn1:{ru:"Установить за 1 команду",en:"Install in 1 command"},
   hero_btn2:{ru:"Посмотреть, как устроено",en:"See how it works"},
@@ -361,23 +363,24 @@ const T = {
 
   sec02_tag:{ru:"02 — Оркестратор",en:"02 — Orchestrator"},
   sec02_h:{ru:"Как устроен скилл, который держит всю цепочку",en:"How the skill that holds the whole chain works"},
-  sec02_sub:{ru:"Скилл <code>/rt-product-discovery</code> — это не код, а инструкция-промпт для Claude Code. Он не выполняет исследование сам: он <strong>собирает вводные и по очереди вызывает 15 агентов</strong>, передавая результат каждого следующему. Файл живёт по пути <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>.",
-             en:"The <code>/rt-product-discovery</code> skill is not code — it's an instruction prompt for Claude Code. It does no research itself: it <strong>collects the inputs and calls the 15 agents one by one</strong>, passing each result to the next. The file lives at <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>."},
+  sec02_sub:{ru:"Скилл <code>/product-discovery</code> — это не код, а инструкция-промпт для Claude Code. Он не выполняет исследование сам: он <strong>собирает вводные и по очереди вызывает 15 агентов</strong>, передавая результат каждого следующему. Файл живёт по пути <code>~/.claude/skills/product-discovery/SKILL.md</code>. Ставятся две языковые версии: <code>/product-discovery</code> (английская) и <code>/product-discovery-ru</code> (русская) — шаги, агенты и правила идентичны, отличается только язык общения. Про твою компанию скилл ничего не знает заранее — всё специфичное лежит в одном файле-паспорте (см. ниже).",
+             en:"The <code>/product-discovery</code> skill is not code — it's an instruction prompt for Claude Code. It does no research itself: it <strong>collects the inputs and calls the 15 agents one by one</strong>, passing each result to the next. The file lives at <code>~/.claude/skills/product-discovery/SKILL.md</code>. Two language variants are installed: <code>/product-discovery</code> (English) and <code>/product-discovery-ru</code> (Russian) — identical steps, agents and rules, only the language differs. It knows nothing about your company up front — everything company-specific lives in one profile file (see below)."},
   step0_h:{ru:"Шаг 0 — интерактивный сбор вводных",en:"Step 0 — interactive intake"},
   step0_p:{ru:"Прежде чем что-то запускать, скилл задаёт вопросы прямо в интерфейсе. <span class='accent'>Обязательное поле ровно одно — бриф.</span> Всё остальное имеет разумный дефолт, и запуск никогда не блокируется из-за вторичных полей:",
            en:"Before running anything, the skill asks questions right in the interface. <span class='accent'>There is exactly one required field — the brief.</span> Everything else has a sensible default, and the run is never blocked by secondary fields:"},
+  step0_li0:{ru:"<strong>Паспорт компании</strong> (шаг 0.0) — если файла нет, скилл предложит собрать его за шесть вопросов, по сайту компании, или пропустить. Если есть — просто покажет строку подтверждения.",en:"<strong>Company profile</strong> (step 0.0) — if the file is missing, the skill offers to build it from six questions, from your company's site, or to skip it. If it exists, you just get a one-line confirmation."},
   step0_li1:{ru:"<strong>Бриф</strong> (обязательно) — что исследуем, зачем, какой вопрос стоит.",en:"<strong>Brief</strong> (required) — what to research, why, what question is on the table."},
-  step0_li2:{ru:"<strong>Автор</strong> — по умолчанию «Я (PM)».",en:"<strong>Author</strong> — defaults to \"Me (PM)\"."},
+  step0_li2:{ru:"<strong>Автор</strong> — по умолчанию «Я (продакт)».",en:"<strong>Author</strong> — defaults to \"Me (PM)\"."},
   step0_li3:{ru:"<strong>Формат</strong> — по умолчанию полный отчёт из 14 секций.",en:"<strong>Format</strong> — defaults to the full 14-section report."},
   step0_li4:{ru:"<strong>ROI</strong> — по умолчанию <em>пропускается</em> (шаг 9 не выполняется).",en:"<strong>ROI</strong> — <em>skipped</em> by default (step 9 doesn't run)."},
-  step0_li5:{ru:"<strong>Notion</strong> — по умолчанию создаётся новая страница в пространстве Product Discovery.",en:"<strong>Notion</strong> — by default a new page is created in the Product Discovery space."},
+  step0_li5:{ru:"<strong>Куда сохранить</strong> — по умолчанию адрес из паспорта компании. Если его нет — отчёт вернётся прямо в чат.",en:"<strong>Where to save</strong> — defaults to the destination in the company profile. If there isn't one, the report comes straight back in chat."},
   rules_h:{ru:"Глобальные правила, которые получает каждый агент",en:"The global rules every agent receives"},
-  rules_p:{ru:"Скилл вклеивает в задачу каждому агенту единый свод: (1) иерархия Jobs строго по Замесину — Big / Core / Small / Micro, где Small — сосед Core; (2) язык вывода — английский, если не сказано иначе; (3) целевые сегменты RedTrack по умолчанию (SMB e-commerce, DTC), исторические (affiliates, арбитражники) — отдельно; (4) единый мастер-документ (структурированный бриф) передаётся по всей цепочке и не теряется.",
-           en:"The skill injects a single ruleset into every agent's task: (1) the Job hierarchy strictly per Zamesin — Big / Core / Small / Micro, where Small is a sibling of Core; (2) output language is English unless stated otherwise; (3) RedTrack's default target segments (SMB e-commerce, DTC), with historical ones (affiliates, media buyers) kept separate; (4) one master document (the structured brief) travels through the whole chain and is never lost."},
+  rules_p:{ru:"Скилл вклеивает в задачу каждому агенту единый свод: (1) паспорт компании — каждый агент читает его сам, а источник, помеченный как ненастроенный, честно пропускает и пишет в пробелы данных, а не подставляет догадку; (2) иерархия Jobs строго по Замесину — Big / Core / Small / Micro, где Small — сосед Core, и уровни всегда относительны охвату <em>твоего</em> продукта; (3) язык вывода — английский, если не сказано иначе; (4) целевые сегменты берутся из брифа, иначе из паспорта — legacy-сегменты идут отдельно и не смешиваются; (5) единый мастер-документ (структурированный бриф) передаётся по всей цепочке и не теряется.",
+           en:"The skill injects a single ruleset into every agent's task: (1) the company profile — every agent reads it itself, and a source marked as not configured is skipped honestly and logged as a data gap, never guessed at; (2) the Job hierarchy strictly per Zamesin — Big / Core / Small / Micro, where Small is a sibling of Core, and the levels are always relative to <em>your</em> product's reach; (3) output language is English unless stated otherwise; (4) target segments come from the brief, otherwise from the profile — legacy segments stay separate and are never blended in; (5) one master document (the structured brief) travels through the whole chain and is never lost."},
   gates_h:{ru:"Две точки, где конвейер останавливается",en:"Two points where the pipeline stops"},
   gates_p:{ru:"Большинство шагов идут автоматически. Но на <strong>шаге 5</strong> (Canon Validator) вердикт <code>BLOCK</code> останавливает цепочку — формулировки Jobs надо поправить и перезапустить шаг. И на <strong>шаге 10.5</strong> (Slop &amp; Logic QA) находки уровня <code>HIGH</code> тоже требуют решения человека, прежде чем идти в перевод. Это защита от того, чтобы «протолкнуть» некачественный отчёт.",
            en:"Most steps run automatically. But at <strong>step 5</strong> (Canon Validator) a <code>BLOCK</code> verdict halts the chain — the Job phrasing must be fixed and the step re-run. And at <strong>step 10.5</strong> (Slop &amp; Logic QA) <code>HIGH</code>-severity findings also require a human decision before moving to translation. This is the guard against pushing through a low-quality report."},
-  skill_src_h:{ru:"📄 Полный исходник <code style='font-size:13px'>SKILL.md</code>",en:"📄 Full <code style='font-size:13px'>SKILL.md</code> source"},
+  skill_src_h:{ru:"📄 Полный исходник <code style='font-size:13px'>SKILL.md</code> (EN) · <a href='files/skill-ru/SKILL.md' download style='color:var(--red);font-size:13px'>русская версия ↓</a>",en:"📄 Full <code style='font-size:13px'>SKILL.md</code> source (EN) · <a href='files/skill-ru/SKILL.md' download style='color:var(--red);font-size:13px'>Russian version ↓</a>"},
 
   sec03_tag:{ru:"03 — Исполнители",en:"03 — The workers"},
   sec03_h:{ru:"15 саб-агентов",en:"15 sub-agents"},
@@ -386,28 +389,31 @@ const T = {
 
   sec04_tag:{ru:"04 — Установка",en:"04 — Installation"},
   sec04_h:{ru:"Поставить себе в Claude Code",en:"Install into your Claude Code"},
-  sec04_sub:{ru:"Цель — чтобы после установки у тебя работала команда <kbd>/rt-product-discovery</kbd> и все 15 агентов были на месте. Ниже два способа: одной командой или вручную.",
-             en:"The goal — after installing, the <kbd>/rt-product-discovery</kbd> command works and all 15 agents are in place. Two ways below: one command, or manual."},
-  call_origin:{ru:"<strong>Важно про происхождение.</strong> Эти агенты заточены под рабочее пространство RedTrack — они лезут в конкретный Notion, Slack, ChartMogul, HubSpot, Telegram. Скопировать и запустить сможет любой, но для полного прогона нужно подключить те же коннекторы (см. таблицу зависимостей) либо адаптировать источники под себя. Агенты на <code>WebSearch/WebFetch</code> (карта рынка, конкуренты, тренды) работают у всех без настройки.",
-               en:"<strong>Important about provenance.</strong> These agents are tuned to RedTrack's workspace — they reach into a specific Notion, Slack, ChartMogul, HubSpot, Telegram. Anyone can copy and run them, but a full run needs the same connectors (see the dependency table) or you adapt the sources to your own. The <code>WebSearch/WebFetch</code> agents (market map, competitors, trends) work for everyone with no setup."},
+  sec04_sub:{ru:"Цель — чтобы после установки работали команды <kbd>/product-discovery</kbd> (англ.) и <kbd>/product-discovery-ru</kbd> (рус.), а все 15 агентов были на месте. Ниже два способа: одной командой или вручную.",
+             en:"The goal — after installing, the <kbd>/product-discovery</kbd> (English) and <kbd>/product-discovery-ru</kbd> (Russian) commands work and all 15 agents are in place. Two ways below: one command, or manual."},
+  call_origin:{ru:"<strong>Работает для любой компании.</strong> Ни в скилле, ни в агентах не зашита конкретная компания, продукт, отрасль или набор инструментов. Всё специфичное живёт в одном файле — <code>~/.claude/discovery-profile.md</code>, который заполняется один раз: компания и продукт, сегменты, конкуренты, якорь Job Graph, куда публиковать отчёты и <em>какие внутренние системы у тебя реально есть</em>. Всё, что оставлено прочерком, значит «этого нет»: агент честно пропустит источник и запишет его в пробелы данных, а не подставит догадку. При первом запуске скилл сам предложит собрать паспорт — шестью вопросами или по сайту компании. Половина конвейера (карта рынка, конкуренты, комьюнити, тренды) работает вообще без настройки, на одном веб-поиске.",
+               en:"<strong>It works for any company.</strong> Nothing in the skill or the agents is hard-wired to a particular company, product, industry or tool stack. Everything company-specific lives in one file — <code>~/.claude/discovery-profile.md</code> — filled in once: company and product, segments, competitors, the Job Graph anchor, where reports get published, and <em>which internal systems you actually have</em>. Anything left as a dash means &quot;does not exist&quot;: the agent skips that source honestly and records a data gap instead of substituting a guess. On the first run the skill offers to build the profile for you — six questions, or a look at your company's site. Half the pipeline (market map, competitors, communities, trends) runs with no setup at all, on web search alone."},
   inst1_h:{ru:"⚡️ Способ 1 — одной командой",en:"⚡️ Option 1 — one command"},
-  inst1_note:{ru:"Скрипт создаёт папки <code>~/.claude/agents</code> и <code>~/.claude/skills/rt-product-discovery</code> и скачивает в них все файлы с этого сайта. Ничего в системе, кроме этих файлов, не трогает. После — перезапусти Claude Code.",
-              en:"The script creates <code>~/.claude/agents</code> and <code>~/.claude/skills/rt-product-discovery</code> and downloads all files from this site into them. It touches nothing else on your system. Then restart Claude Code."},
+  inst1_note:{ru:"Скрипт создаёт <code>~/.claude/agents</code>, обе папки скилла (<code>product-discovery</code> и <code>product-discovery-ru</code>) и скачивает в них все файлы с этого сайта, плюс шаблон паспорта компании. Уже заполненный паспорт не перезаписывает. Ничего в системе, кроме этих файлов, не трогает. После — перезапусти Claude Code.",
+              en:"The script creates <code>~/.claude/agents</code>, both skill directories (<code>product-discovery</code> and <code>product-discovery-ru</code>) and downloads all the files from this site into them, plus the company profile template. An already-filled profile is never overwritten. It touches nothing else on your system. Then restart Claude Code."},
   inst2_h:{ru:"🛠 Способ 2 — вручную",en:"🛠 Option 2 — manual"},
   mstep1_h:{ru:"Создай папки",en:"Create the folders"},
-  mstep1_p:{ru:"<code>mkdir -p ~/.claude/agents ~/.claude/skills/rt-product-discovery</code>",en:"<code>mkdir -p ~/.claude/agents ~/.claude/skills/rt-product-discovery</code>"},
+  mstep1_p:{ru:"<code>mkdir -p ~/.claude/agents ~/.claude/skills/product-discovery ~/.claude/skills/product-discovery-ru</code>",en:"<code>mkdir -p ~/.claude/agents ~/.claude/skills/product-discovery ~/.claude/skills/product-discovery-ru</code>"},
   mstep2_h:{ru:"Положи 15 агентов",en:"Drop in the 15 agents"},
   mstep2_p:{ru:"Скачай (или скопируй кнопкой «Копировать») каждый файл из раздела <a href='#agents' style='color:var(--red)'>15 агентов</a> в <code>~/.claude/agents/&lt;имя&gt;.md</code>. Имя файла = ссылка «Скачать» на карточке.",
              en:"Download (or use the \"Copy\" button for) each file from the <a href='#agents' style='color:var(--red)'>15 agents</a> section into <code>~/.claude/agents/&lt;name&gt;.md</code>. The file name = the \"Download\" link on the card."},
   mstep3_h:{ru:"Положи скилл",en:"Drop in the skill"},
-  mstep3_p:{ru:"Скачай <a href='files/skill/SKILL.md' download style='color:var(--red)'>SKILL.md</a> в <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>.",
-             en:"Download <a href='files/skill/SKILL.md' download style='color:var(--red)'>SKILL.md</a> into <code>~/.claude/skills/rt-product-discovery/SKILL.md</code>."},
+  mstep3_p:{ru:"Скачай <a href='files/skill/SKILL.md' download style='color:var(--red)'>SKILL.md</a> в <code>~/.claude/skills/product-discovery/SKILL.md</code>. Нужна русская версия — <a href='files/skill-ru/SKILL.md' download style='color:var(--red)'>этот файл</a> в <code>~/.claude/skills/product-discovery-ru/SKILL.md</code>. Можно поставить обе.",
+             en:"Download <a href='files/skill/SKILL.md' download style='color:var(--red)'>SKILL.md</a> into <code>~/.claude/skills/product-discovery/SKILL.md</code>. For the Russian variant, put <a href='files/skill-ru/SKILL.md' download style='color:var(--red)'>this file</a> into <code>~/.claude/skills/product-discovery-ru/SKILL.md</code>. Installing both is fine."},
+  mstep35_h:{ru:"Заполни паспорт компании",en:"Fill in the company profile"},
+  mstep35_p:{ru:"Скачай <a href='files/profile/discovery-profile.template.md' download style='color:var(--red)'>шаблон</a> в <code>~/.claude/discovery-profile.md</code> и заполни. Пример на вымышленной компании — <a href='files/profile/discovery-profile.example.md' download style='color:var(--red)'>здесь</a>. Можно и пропустить: при первом запуске скилл предложит собрать паспорт сам.",
+             en:"Download the <a href='files/profile/discovery-profile.template.md' download style='color:var(--red)'>template</a> into <code>~/.claude/discovery-profile.md</code> and fill it in. A worked example on a made-up company is <a href='files/profile/discovery-profile.example.md' download style='color:var(--red)'>here</a>. You can also skip this — the first run will offer to build the profile for you."},
   mstep4_h:{ru:"Перезапусти Claude Code",en:"Restart Claude Code"},
   mstep4_p:{ru:"Чтобы он подхватил новые агенты и скилл. Проверь командой <kbd>/agents</kbd> — должно появиться 15 новых.",
              en:"So it picks up the new agents and skill. Check with <kbd>/agents</kbd> — 15 new ones should appear."},
   mstep5_h:{ru:"Запусти",en:"Run it"},
-  mstep5_p:{ru:"<code>/rt-product-discovery</code> — и опиши задачу, когда спросит. Или сразу: <code>/rt-product-discovery нужно понять, стоит ли делать X для сегмента Y</code>.",
-             en:"<code>/rt-product-discovery</code> — and describe the task when asked. Or inline: <code>/rt-product-discovery figure out whether we should build X for segment Y</code>."},
+  mstep5_p:{ru:"<code>/product-discovery-ru</code> — и опиши задачу, когда спросит. Или сразу: <code>/product-discovery-ru нужно понять, стоит ли делать X для сегмента Y</code>. Англоязычная версия — <code>/product-discovery</code>.",
+             en:"<code>/product-discovery</code> — and describe the task when asked. Or inline: <code>/product-discovery figure out whether we should build X for segment Y</code>."},
   deps_h:{ru:"Что нужно подключить для полного прогона",en:"What to connect for a full run"},
   deps_sub:{ru:"WebSearch/WebFetch встроены в Claude Code. Остальное — внешние коннекторы (MCP), которые авторизуются через <kbd>/mcp</kbd> или настройки коннекторов claude.ai. Без них соответствующие шаги просто вернут «нет данных», но конвейер не сломается.",
             en:"WebSearch/WebFetch are built into Claude Code. The rest are external connectors (MCP), authorized via <kbd>/mcp</kbd> or the claude.ai connector settings. Without them the relevant steps simply return \"no data\" — the pipeline won't break."},
@@ -415,19 +421,21 @@ const T = {
   deps_c2:{ru:"Кому нужна",en:"Who needs it"},
   deps_c3:{ru:"Статус",en:"Status"},
   dep1_who:{ru:"Market &amp; Source Map, Feature Intelligence, Community Signals, Trend Analyst, Segmentation, ROI",en:"Market &amp; Source Map, Feature Intelligence, Community Signals, Trend Analyst, Segmentation, ROI"},
-  dep2_who:{ru:"Context Recovery, Knowledge Base, Canon Validator, Final Report, Slop QA, Translation",en:"Context Recovery, Knowledge Base, Canon Validator, Final Report, Slop QA, Translation"},
-  dep3_who:{ru:"RT Analytics Agent (шаги 3c и 8)",en:"RT Analytics Agent (steps 3c and 8)"},
-  dep4_who:{ru:"Context Recovery, Knowledge Base — иначе fallback на WebFetch",en:"Context Recovery, Knowledge Base — otherwise falls back to WebFetch"},
+  dep2_name:{ru:"<code>Вики / база знаний</code> (Notion, Confluence…)",en:"<code>Wiki / docs</code> (Notion, Confluence…)"},
+  dep2_who:{ru:"Context Recovery, Product Knowledge, публикация в Final Report и Translation",en:"Context Recovery, Product Knowledge, publishing in Final Report and Translation"},
+  dep3_name:{ru:"<code>Выручка · CRM · чат · аналитика · поддержка</code>",en:"<code>Revenue · CRM · chat · analytics · support</code>"},
+  dep3_who:{ru:"Internal Data Agent (шаги 3c и 8) — подключи то, что у тебя есть",en:"Internal Data Agent (steps 3c and 8) — connect whatever you have"},
+  dep4_who:{ru:"Context Recovery, Product Knowledge — иначе fallback на WebFetch",en:"Context Recovery, Product Knowledge — otherwise falls back to WebFetch"},
   dep5_name:{ru:"Канон Next Move Theory на диске",en:"Next Move Theory canon on disk"},
-  dep5_who:{ru:"AJTBD Canon Validator читает файлы канона перед проверкой",en:"AJTBD Canon Validator reads the canon files before validating"},
+  dep5_who:{ru:"AJTBD Canon Validator читает канон перед проверкой — без канона он откажется работать, а не станет валидировать по памяти",en:"AJTBD Canon Validator reads the canon before validating — without it, it refuses to run rather than validate from memory"},
   status_builtin:{ru:"встроено",en:"built-in"},
   status_req:{ru:"нужно подключить",en:"connect required"},
   status_opt:{ru:"опционально",en:"optional"},
   status_canon:{ru:"нужен канон",en:"canon required"},
-  call_fixes:{ru:"<strong>Две правки, если что-то не завелось.</strong> <u>Поле <code>model:</code></u> в некоторых агентах указывает конкретные ID (<code>claude-sonnet-4-6</code>, <code>claude-opus-4-6</code>, <code>claude-haiku-4-5-…</code>) — если твой Claude Code их не знает, замени на алиас <code>sonnet</code> / <code>opus</code> / <code>haiku</code> или просто удали строку (агент унаследует модель сессии). <u>Поле <code>tools:</code></u> у Canon Validator и Slop QA содержит MCP-имена с ID сервера, специфичным для этого аккаунта (<code>mcp__189b7469…</code>) — подключи свой Notion и поправь эти имена, либо удали блок <code>tools:</code>, чтобы агент получил инструменты по умолчанию.",
-              en:"<strong>Two fixes if something doesn't start.</strong> <u>The <code>model:</code> field</u> in some agents names specific IDs (<code>claude-sonnet-4-6</code>, <code>claude-opus-4-6</code>, <code>claude-haiku-4-5-…</code>) — if your Claude Code doesn't know them, swap for the alias <code>sonnet</code> / <code>opus</code> / <code>haiku</code> or just delete the line (the agent inherits the session model). <u>The <code>tools:</code> field</u> in Canon Validator and Slop QA contains MCP names with a server ID specific to this account (<code>mcp__189b7469…</code>) — connect your own Notion and fix those names, or delete the <code>tools:</code> block so the agent gets the default tools."},
-  call_verify:{ru:"<strong>Как понять, что всё встало.</strong> Открой Claude Code → <kbd>/agents</kbd>: в списке должны быть все 15 (Discovery Request Agent, Context Recovery RT Agent, … Report Translation Agent). Скилл проверяется так: набери <kbd>/</kbd> и найди <code>rt-product-discovery</code> в списке. Запусти его на маленьком тестовом брифе — первым делом он задаст вопросы Шага 0.",
-               en:"<strong>How to know it's all in.</strong> Open Claude Code → <kbd>/agents</kbd>: the list should show all 15 (Discovery Request Agent, Context Recovery RT Agent, … Report Translation Agent). Check the skill by typing <kbd>/</kbd> and finding <code>rt-product-discovery</code> in the list. Run it on a small test brief — it will first ask the Step 0 questions."},
+  call_fixes:{ru:"<strong>Паспорт компании — единственное, что нужно заполнить.</strong> Установщик кладёт рядом шаблон <code>~/.claude/discovery-profile.template.md</code> и заполненный пример на вымышленной компании <code>discovery-profile.example.md</code>. Можно заполнить руками (скопируй шаблон в <code>discovery-profile.md</code>), а можно ничего не делать — при первом запуске <kbd>/product-discovery</kbd> сам предложит собрать его за шесть вопросов. Уже существующий профиль установщик <strong>не перезаписывает</strong>. Секреты в профиль не клади: только имена и ссылки, никаких ключей и токенов.",
+              en:"<strong>The company profile is the only thing you fill in.</strong> The installer drops a template at <code>~/.claude/discovery-profile.template.md</code> next to a fully worked example on a made-up company, <code>discovery-profile.example.md</code>. Fill it by hand (copy the template to <code>discovery-profile.md</code>) — or do nothing, and the first <kbd>/product-discovery</kbd> run will offer to build it from six questions. An existing profile is <strong>never overwritten</strong>. Keep secrets out of it: names and links only, no keys or tokens."},
+  call_verify:{ru:"<strong>Как понять, что всё встало.</strong> Открой Claude Code → <kbd>/agents</kbd>: в списке должны быть все 15 (Discovery Request Agent, Context Recovery Agent, … Report Translation Agent). Скиллы проверяются так: набери <kbd>/</kbd> и найди в списке <code>product-discovery</code> и <code>product-discovery-ru</code>. Запусти на маленьком тестовом брифе — первым делом скилл проверит паспорт компании (Шаг 0.0), а потом задаст вопросы Шага 0.",
+               en:"<strong>How to know it's all in.</strong> Open Claude Code → <kbd>/agents</kbd>: the list should show all 15 (Discovery Request Agent, Context Recovery Agent, … Report Translation Agent). Check the skills by typing <kbd>/</kbd> and finding both <code>product-discovery</code> and <code>product-discovery-ru</code> in the list. Run one on a small test brief — it will check the company profile first (Step 0.0), then ask the Step 0 questions."},
   installall_h:{ru:"Установить сразу всё разом",en:"Install everything at once"},
   installsh_h:{ru:"📄 Исходник <code style='font-size:13px'>install.sh</code>",en:"📄 <code style='font-size:13px'>install.sh</code> source"},
 
@@ -435,18 +443,18 @@ const T = {
   btn_download:{ru:"Скачать",en:"Download"},
 
   footer_author:{ru:`Автор: ${AUTHOR_A}`,en:`Author: ${AUTHOR_A}`},
-  footer_line1:{ru:"RedTrack Product Discovery Flow · методология AJTBD (Иван Замесин) · для Claude Code",en:"RedTrack Product Discovery Flow · AJTBD methodology (Ivan Zamesin) · for Claude Code"},
+  footer_line1:{ru:"Product Discovery Flow · методология AJTBD (Иван Замесин) · для Claude Code",en:"Product Discovery Flow · AJTBD methodology (Ivan Zamesin) · for Claude Code"},
   footer_line2:{ru:"Собрано для внутреннего использования. Адаптируй источники под своё рабочее пространство.",en:"Built for internal use. Adapt the sources to your own workspace."},
 };
 
 /* ---------- pipeline data ---------- */
 const PIPE = [
   {step:{ru:"Шаг 1",en:"Step 1"},phase:"prep",cards:[{n:"Discovery Request Agent",d:{ru:"Сырой бриф → структурированный запрос",en:"Raw brief → structured request"}}]},
-  {step:{ru:"Шаг 2",en:"Step 2"},phase:"prep",cards:[{n:"Context Recovery RT Agent",d:{ru:"Поднимает прошлые Discovery-отчёты, ищет белые пятна",en:"Recovers past Discovery reports, finds blind spots"}}]},
+  {step:{ru:"Шаг 2",en:"Step 2"},phase:"prep",cards:[{n:"Context Recovery Agent",d:{ru:"Поднимает прошлые Discovery-отчёты, ищет белые пятна",en:"Recovers past Discovery reports, finds blind spots"}}]},
   {step:{ru:"Шаг 3",en:"Step 3"},phase:"data",parallel:true,cards:[
     {badge:"3a",n:"Market & Source Map",d:{ru:"Карта рынка и источников",en:"Market & source map"}},
-    {badge:"3b",n:"Knowledge Base RT Check",d:{ru:"help.redtrack.io + Notion Dev",en:"help.redtrack.io + Notion Dev"}},
-    {badge:"3c",n:"RT Analytics",d:{ru:"ChartMogul / HubSpot / Slack / TG",en:"ChartMogul / HubSpot / Slack / TG"}}]},
+    {badge:"3b",n:"Product Knowledge",d:{ru:"Свои help-доки + инженерная вики",en:"Own help docs + engineering wiki"}},
+    {badge:"3c",n:"Internal Data",d:{ru:"Свои метрики / CRM / чат / комьюнити",en:"Own metrics / CRM / chat / community"}}]},
   {step:{ru:"Шаг 4",en:"Step 4"},phase:"comp",parallel:true,cards:[
     {badge:"4a",n:"Feature Intelligence",d:{ru:"Разбор фичи у конкурентов",en:"Feature teardown vs competitors"}},
     {badge:"4b",n:"Community Signals",d:{ru:"Reddit / G2 / Capterra / соцсети",en:"Reddit / G2 / Capterra / social"}},
@@ -454,75 +462,75 @@ const PIPE = [
   {step:{ru:"Шаг 5 · ГЕЙТ",en:"Step 5 · GATE"},phase:"gate",gate:true,cards:[{badge:"PASS / BLOCK",n:"AJTBD Canon Validator",d:{ru:"BLOCK → стоп, поправить формулировки, перезапуск",en:"BLOCK → stop, fix phrasing, re-run"}}]},
   {step:{ru:"Шаг 6",en:"Step 6"},phase:"seg",cards:[{n:"AJTBD Segmentation Agent",d:{ru:"Job Graph → сегменты с приоритетами",en:"Job Graph → prioritized segments"}}]},
   {step:{ru:"Шаг 7",en:"Step 7"},phase:"seg",cards:[{n:"Discovery QA & PM Action Agent",d:{ru:"QA качества + ручной to-do для PM",en:"Quality QA + manual PM to-do"}}]},
-  {step:{ru:"Шаг 8",en:"Step 8"},phase:"seg",cards:[{n:"RT Analytics Agent",note:{ru:"(повторно)",en:"(again)"},d:{ru:"Закрывает пробелы из шага 7",en:"Closes gaps from step 7"}}]},
+  {step:{ru:"Шаг 8",en:"Step 8"},phase:"seg",cards:[{n:"Internal Data Agent",note:{ru:"(повторно)",en:"(again)"},d:{ru:"Закрывает пробелы из шага 7",en:"Closes gaps from step 7"}}]},
   {step:{ru:"Шаг 9",en:"Step 9"},phase:"rep",opt:true,cards:[{n:"Market Opportunity & ROI",d:{ru:"TAM/SAM/SOM — по умолчанию пропускается",en:"TAM/SAM/SOM — skipped by default"}}]},
-  {step:{ru:"Шаг 10",en:"Step 10"},phase:"rep",cards:[{n:"Discovery Final Report Agent",d:{ru:"Отчёт (14 секций) → Notion (EN)",en:"Report (14 sections) → Notion (EN)"}}]},
+  {step:{ru:"Шаг 10",en:"Step 10"},phase:"rep",cards:[{n:"Discovery Final Report Agent",d:{ru:"Отчёт (14 секций) → публикация (EN)",en:"Report (14 sections) → publish (EN)"}}]},
   {step:{ru:"Шаг 10.5 · ГЕЙТ",en:"Step 10.5 · GATE"},phase:"gate",gate:true,cards:[{badge:{ru:"HIGH → стоп",en:"HIGH → stop"},n:"Slop & Logic QA Agent",d:{ru:"Ловит AI-слоп и логические дыры",en:"Catches AI slop & logic holes"}}]},
-  {step:{ru:"Шаг 11",en:"Step 11"},phase:"rep",cards:[{n:"Report Translation Agent",d:{ru:"Перевод → Notion (RU)",en:"Translation → Notion (RU)"}}]},
+  {step:{ru:"Шаг 11",en:"Step 11"},phase:"rep",cards:[{n:"Report Translation Agent",d:{ru:"Перевод → публикация (если задан язык)",en:"Translation → publish (if a language is set)"}}]},
 ];
 
 /* ---------- agents data ---------- */
 const AGENTS = [
-  {slug:"discovery-request-agent",name:"Discovery Request Agent",step:{ru:"Шаг 1",en:"Step 1"},phase:"prep",model:"sonnet-4-6",
+  {slug:"discovery-request-agent",name:"Discovery Request Agent",step:{ru:"Шаг 1",en:"Step 1"},phase:"prep",model:"sonnet",
    tools:{ru:"все (нужен только текст)",en:"all (text only)"},needs:[],
    role:{ru:"Причёсывает сырой бриф в структурированный Discovery Request: research question, сегменты по Job Graph, scope, предположения, ожидаемый результат. Решений намеренно не предлагает.",
          en:"Turns a raw brief into a structured Discovery Request: research question, segments by Job Graph, scope, assumptions, expected outcome. Deliberately proposes no solutions."}},
-  {slug:"context-recovery-rt-agent",name:"Context Recovery RT Agent",step:{ru:"Шаг 2",en:"Step 2"},phase:"prep",model:"sonnet-4-6",
-   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"},{ru:"Firecrawl (опц.)",en:"Firecrawl (opt.)"}],
-   role:{ru:"Читает прошлые Discovery-отчёты в Notion, достаёт уже изученных конкурентов, задокументированные Jobs (переводя старый Christensen-формат в канон Замесина) и покрытые сегменты. Возвращает список белых пятен.",
-         en:"Reads past Discovery reports in Notion and extracts already-studied competitors, documented Jobs (converting old Christensen phrasing into the Zamesin canon) and covered segments. Returns a list of blind spots."}},
-  {slug:"market-source-map-agent",name:"Market & Source Map Agent",step:{ru:"Шаг 3a",en:"Step 3a"},phase:"data",model:"sonnet-4-6",
+  {slug:"context-recovery-agent",name:"Context Recovery Agent",step:{ru:"Шаг 2",en:"Step 2"},phase:"prep",model:"sonnet",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Архив исследований",en:"Research archive"},{ru:"Firecrawl (опц.)",en:"Firecrawl (opt.)"}],
+   role:{ru:"Читает ваши прошлые Discovery-отчёты (адрес архива — из паспорта компании), достаёт уже изученных конкурентов, задокументированные Jobs (переводя старый Christensen-формат в канон Замесина) и покрытые сегменты. Возвращает список белых пятен. Если архива нет — честно скажет, что это первое исследование по теме.",
+         en:"Reads your past Discovery reports (the archive location comes from the company profile) and extracts already-studied competitors, documented Jobs (converting old Christensen phrasing into the Zamesin canon) and covered segments. Returns a list of blind spots. With no archive, it says plainly that this is the first documented research on the topic."}},
+  {slug:"market-source-map-agent",name:"Market & Source Map Agent",step:{ru:"Шаг 3a",en:"Step 3a"},phase:"data",model:"sonnet",
    tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
    role:{ru:"Строит карту рынка: прямые конкуренты, субституты, смежные решения → для каждого сегмент, Job и первичные источники. Отдаёт строго JSON, без прозы.",
          en:"Builds the market map: direct competitors, substitutes, adjacent solutions → segment, Job and primary sources for each. Returns strict JSON, no prose."}},
-  {slug:"knowledge-base-rt-check-agent",name:"Knowledge Base RT Check Agent",step:{ru:"Шаг 3b",en:"Step 3b"},phase:"data",model:"sonnet-4-6",
-   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"},{ru:"Web/Firecrawl",en:"Web/Firecrawl"}],
-   role:{ru:"Прочёсывает базу знаний help.redtrack.io и раздел Development в Notion: релевантные фичи, техограничения, что уже реализовано или запланировано.",
-         en:"Combs the help.redtrack.io knowledge base and the Development section in Notion: relevant features, technical limits, what's already shipped or planned."}},
-  {slug:"rt-analytics-agent",name:"RT Analytics Agent",step:{ru:"Шаги 3c · 8",en:"Steps 3c · 8"},phase:"data",model:"sonnet-4-6",
-   tools:{ru:"все",en:"all"},needs:[{ru:"ChartMogul",en:"ChartMogul"},{ru:"HubSpot",en:"HubSpot"},{ru:"Slack",en:"Slack"},{ru:"Telegram",en:"Telegram"}],
-   role:{ru:"Снимает данные с подключённых платформ: ChartMogul (MRR/churn/ARPA/LTV), HubSpot (сделки, win/loss), Slack (#Customer-Feedback, #Data-Analytics, #Support), Telegram. Даёт количественный + качественный срез с разбивкой по сегментам.",
-         en:"Pulls data from connected platforms: ChartMogul (MRR/churn/ARPA/LTV), HubSpot (deals, win/loss), Slack (#Customer-Feedback, #Data-Analytics, #Support), Telegram. Delivers a quantitative + qualitative slice broken down by segment."}},
-  {slug:"feature-intelligence-agent",name:"Feature Intelligence Agent",step:{ru:"Шаг 4a",en:"Step 4a"},phase:"comp",model:"sonnet-4-6",
+  {slug:"product-knowledge-agent",name:"Product Knowledge Agent",step:{ru:"Шаг 3b",en:"Step 3b"},phase:"data",model:"sonnet",
+   tools:{ru:"все",en:"all"},needs:[{ru:"База знаний / вики",en:"Knowledge base / wiki"},{ru:"Web/Firecrawl",en:"Web/Firecrawl"}],
+   role:{ru:"Прочёсывает вашу собственную базу знаний и внутреннюю инженерную вики (адреса — из паспорта компании): релевантные фичи, техограничения, что уже реализовано или запланировано. Это AS-IS-правда о продукте, с которой сравнивается всё остальное.",
+         en:"Combs your own knowledge base and internal engineering wiki (locations come from the company profile): relevant features, technical limits, what's already shipped or planned. This is the AS-IS truth about the product that everything else is compared against."}},
+  {slug:"internal-data-agent",name:"Internal Data Agent",step:{ru:"Шаги 3c · 8",en:"Steps 3c · 8"},phase:"data",model:"sonnet",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Метрики выручки",en:"Revenue metrics"},{ru:"CRM",en:"CRM"},{ru:"Командный чат",en:"Team chat"},{ru:"Комьюнити",en:"Community"},{ru:"Продуктовая аналитика",en:"Product analytics"}],
+   role:{ru:"Снимает данные с тех платформ, которые подключены <em>у тебя</em> — список берётся из паспорта компании, а не зашит: метрики подписок (MRR/churn/ARPA/LTV), CRM (сделки, win/loss), каналы командного чата, комьюнити, продуктовая аналитика, тикеты поддержки. Даёт количественный + качественный срез с разбивкой по сегментам. Ненастроенный источник пропускает и пишет в пробелы данных.",
+         en:"Pulls data from the platforms <em>you</em> have connected — the list comes from the company profile, nothing is hard-wired: subscription metrics (MRR/churn/ARPA/LTV), CRM (deals, win/loss), team chat channels, community, product analytics, support tickets. Delivers a quantitative + qualitative slice broken down by segment. A source that is not configured gets skipped and logged as a data gap."}},
+  {slug:"feature-intelligence-agent",name:"Feature Intelligence Agent",step:{ru:"Шаг 4a",en:"Step 4a"},phase:"comp",model:"sonnet",
    tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
    role:{ru:"Глубокий разбор конкретной фичи у 2–5 конкурентов: какой Core Job закрывает, продуктовая логика, трейд-оффы, готовность к масштабу. Мышление senior PM + discovery lead + архитектор B2B SaaS.",
          en:"Deep dive on one specific feature across 2–5 competitors: which Core Job it serves, product logic, trade-offs, scale readiness. Thinks as senior PM + discovery lead + B2B SaaS architect."}},
-  {slug:"community-signal-intelligence-agent",name:"Community Signal Intelligence Agent",step:{ru:"Шаг 4b",en:"Step 4b"},phase:"comp",model:"opus-4-6",
+  {slug:"community-signal-intelligence-agent",name:"Community Signal Intelligence Agent",step:{ru:"Шаг 4b",en:"Step 4b"},phase:"comp",model:"opus",
    tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
    role:{ru:"Собирает публичные сигналы (Reddit, G2, Capterra, Trustpilot, соцсети): реальные боли, обходные пути, триггеры переключения и покупки, эмоции — через линзу AJTBD. Единственный агент на Opus.",
          en:"Gathers public signals (Reddit, G2, Capterra, Trustpilot, social): real pains, workarounds, switching and purchase triggers, emotions — through the AJTBD lens. The only agent on Opus."}},
-  {slug:"trend-analyst",name:"Trend Analyst",step:{ru:"Шаг 4c",en:"Step 4c"},phase:"comp",model:"sonnet-4-6",
+  {slug:"trend-analyst",name:"Trend Analyst",step:{ru:"Шаг 4c",en:"Step 4c"},phase:"comp",model:"sonnet",
    tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
    role:{ru:"Ловит слабые сигналы и формирующиеся тренды, которых ещё нет у конкурентов и которые пользователи явно не проговаривают: техсдвиги, регуляторка, изменения поведения. Строит 2–4 сценария с диапазонами вероятностей.",
          en:"Catches weak signals and emerging trends not yet visible in competitors and not explicitly voiced by users: tech shifts, regulation, behavior changes. Builds 2–4 scenarios with probability ranges."}},
   {slug:"ajtbd-canon-validator",name:"AJTBD Canon Validator",step:{ru:"Шаг 5 · ГЕЙТ",en:"Step 5 · GATE"},phase:"gate",model:"sonnet",
-   tools:{ru:"Read, Grep, Glob, Bash, Notion",en:"Read, Grep, Glob, Bash, Notion"},needs:[{ru:"Notion",en:"Notion"},{ru:"Канон NMT на диске",en:"NMT canon on disk"}],
+   tools:{ru:"Read, Grep, Glob, Bash, WebFetch",en:"Read, Grep, Glob, Bash, WebFetch"},needs:[{ru:"Канон NMT на диске",en:"NMT canon on disk"}],
    role:{ru:"Проверяет каждый Job, уровень и критерий успеха против канона Замесина. Вердикт PASS / BLOCK со списком находок. При BLOCK конвейер стоп. Сам ничего не переписывает.",
          en:"Checks every Job, level and success criterion against Zamesin's canon. Verdict PASS / BLOCK with a list of findings. On BLOCK the pipeline stops. Rewrites nothing itself."}},
-  {slug:"ajtbd-segmentation-agent",name:"AJTBD Segmentation Agent",step:{ru:"Шаг 6",en:"Step 6"},phase:"seg",model:"sonnet-4-6",
+  {slug:"ajtbd-segmentation-agent",name:"AJTBD Segmentation Agent",step:{ru:"Шаг 6",en:"Step 6"},phase:"seg",model:"sonnet",
    tools:{ru:"WebSearch, WebFetch",en:"WebSearch, WebFetch"},needs:[],
    role:{ru:"Строит Job Graph (Big → Core → Small → Micro) и группирует людей в сегменты по схожести Job Graph + критериев успеха. Оценивает сегменты по ценности, прибыльности, масштабируемости и Critical Chain.",
          en:"Builds the Job Graph (Big → Core → Small → Micro) and clusters people into segments by Job Graph + success-criteria similarity. Scores segments on value, profitability, scalability and the Critical Chain."}},
-  {slug:"discovery-qa-agent",name:"Discovery QA & PM Action Agent",step:{ru:"Шаг 7",en:"Step 7"},phase:"seg",model:"sonnet-4-6",
+  {slug:"discovery-qa-agent",name:"Discovery QA & PM Action Agent",step:{ru:"Шаг 7",en:"Step 7"},phase:"seg",model:"sonnet",
    tools:{ru:"все",en:"all"},needs:[],
-   role:{ru:"Оценивает качество исследования (стратегическое соответствие, покрытие сегментов, качество Jobs и доказательств), ставит флаги и формирует список доп-запросов к аналитике + ручной to-do для PM (интервью, экспорт UserPilot, разговоры с Sales).",
-         en:"Audits research quality (strategic fit, segment coverage, Job and evidence quality), raises flags and produces a list of extra analytics queries + a manual PM to-do (interviews, UserPilot export, talks with Sales)."}},
-  {slug:"market-opportunity-roi-agent",name:"Market Opportunity & ROI Calculator Agent",step:{ru:"Шаг 9 · опц.",en:"Step 9 · opt."},phase:"rep",model:"opus-4-6",
+   role:{ru:"Оценивает качество исследования (стратегическое соответствие — по паспорту компании, покрытие сегментов, качество Jobs и доказательств), ставит флаги и формирует список доп-запросов к аналитике + ручной to-do для продакта (интервью, ручные выгрузки, разговоры с продажами).",
+         en:"Audits research quality (strategic fit — against the company profile, segment coverage, Job and evidence quality), raises flags and produces a list of extra analytics queries + a manual PM to-do (interviews, manual exports, talks with Sales)."}},
+  {slug:"market-opportunity-roi-agent",name:"Market Opportunity & ROI Calculator Agent",step:{ru:"Шаг 9 · опц.",en:"Step 9 · opt."},phase:"rep",model:"opus",
    tools:{ru:"все",en:"all"},needs:[{ru:"WebSearch",en:"WebSearch"}],
    role:{ru:"Считает рыночную возможность: TAM/SAM/SOM двумя методами (top-down + bottom-up), воронку аудитории, ценообразование конкурентов, экономический потенциал сегментов по 4 измерениям. По умолчанию пропускается.",
          en:"Sizes the opportunity: TAM/SAM/SOM two ways (top-down + bottom-up), audience funnel, competitor pricing, segment economics across 4 dimensions. Skipped by default."}},
-  {slug:"discovery-final-report-agent",name:"Discovery Final Report Agent",step:{ru:"Шаг 10",en:"Step 10"},phase:"rep",model:"haiku-4-5",
-   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"}],
-   role:{ru:"Форматирует одобренные находки в трёхслойный Discovery-отчёт (14 секций: Exec для CEO, Body для PDM, Appendix) и постит в Notion на английском. Новых выводов не придумывает — только форматирует.",
-         en:"Formats approved findings into a three-layer Discovery report (14 sections: Exec for CEO, Body for PDM, Appendix) and posts it to Notion in English. Invents no new conclusions — only formats."}},
+  {slug:"discovery-final-report-agent",name:"Discovery Final Report Agent",step:{ru:"Шаг 10",en:"Step 10"},phase:"rep",model:"sonnet",
+   tools:{ru:"все",en:"all"},needs:[{ru:"Куда публиковать (из паспорта)",en:"Publishing target (from profile)"}],
+   role:{ru:"Форматирует одобренные находки в трёхслойный Discovery-отчёт (14 секций: Exec для руководителей, Body для продукта и разработки, Appendix) и публикует на английском туда, где живёт документация. Новых выводов не придумывает — только форматирует.",
+         en:"Formats approved findings into a three-layer Discovery report (14 sections: Exec for leadership, Body for product and engineering, Appendix) and publishes it in English wherever your docs live. Invents no new conclusions — only formats."}},
   {slug:"slop-logic-qa-agent",name:"Slop & Logic QA Agent",step:{ru:"Шаг 10.5 · ГЕЙТ",en:"Step 10.5 · GATE"},phase:"gate",model:"sonnet",
-   tools:{ru:"Notion, Bash, Read",en:"Notion, Bash, Read"},needs:[{ru:"Notion",en:"Notion"}],
-   role:{ru:"Читает готовый отчёт из Notion и ловит AI-слоп (расплывчатости, circular reasoning, пустые превосходства) и логические нестыковки между секциями — с цитатами и severity HIGH/MED/LOW. При HIGH конвейер стоп.",
-         en:"Reads the finished report from Notion and catches AI slop (vagueness, circular reasoning, hollow superlatives) and logical inconsistencies between sections — with quotes and HIGH/MED/LOW severity. On HIGH the pipeline stops."}},
+   tools:{ru:"Read, Grep, Glob, Bash, WebFetch",en:"Read, Grep, Glob, Bash, WebFetch"},needs:[],
+   role:{ru:"Читает готовый отчёт (по ссылке, из файла или прямо из текста) и ловит AI-слоп (расплывчатости, circular reasoning, пустые превосходства) и логические нестыковки между секциями — с цитатами и severity HIGH/MED/LOW. Обязан доказать, что реально прочитал документ. При HIGH конвейер стоп.",
+         en:"Reads the finished report (from a link, a file, or pasted text) and catches AI slop (vagueness, circular reasoning, hollow superlatives) and logical inconsistencies between sections — with quotes and HIGH/MED/LOW severity. Must prove it actually read the document. On HIGH the pipeline stops."}},
   {slug:"report-translation-agent",name:"Report Translation Agent",step:{ru:"Шаг 11",en:"Step 11"},phase:"rep",model:"sonnet",
-   tools:{ru:"все",en:"all"},needs:[{ru:"Notion",en:"Notion"}],
-   role:{ru:"Переводит финальный отчёт с английского на русский, сохраняя структуру, форматирование и Notion-совместимость (термины и лейблы AJTBD остаются на английском). Публикует RU-версию отдельной страницей.",
-         en:"Translates the final report from English to Russian, preserving structure, formatting and Notion compatibility (AJTBD terms and labels stay in English). Publishes the RU version as a separate page."}},
+   tools:{ru:"все",en:"all"},needs:[{ru:"Куда публиковать (из паспорта)",en:"Publishing target (from profile)"}],
+   role:{ru:"Переводит финальный отчёт с английского на язык, указанный в паспорте компании, сохраняя структуру и форматирование (термины и лейблы AJTBD остаются на английском, Job не превращается в существительное). Публикует перевод отдельной страницей. Если язык не задан — шаг пропускается.",
+         en:"Translates the final report from English into the language set in the company profile, preserving structure and formatting (AJTBD terms and labels stay in English; a Job never degrades into a noun phrase). Publishes the translation as a separate page. If no language is set, the step is skipped."}},
 ];
 
 const PHASE_VAR = {prep:"blue",data:"teal",comp:"violet",gate:"amber",seg:"green",rep:"red"};

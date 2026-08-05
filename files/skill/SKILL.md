@@ -1,248 +1,302 @@
 ---
-name: rt-product-discovery
+name: product-discovery
 description: >
-  Интерактивный запуск полного Product Discovery Flow для RedTrack. Вызывается, когда PM получает новую задачу на Discovery (или вводит /rt-product-discovery). Сначала задаёт вопросы прямо в интерфейсе Claude и собирает вводные: Brief Intake (ЕДИНСТВЕННОЕ обязательное поле), автор задачи, ожидаемый формат ответа, нужно ли считать ROI (по умолчанию — пропускается), целевая страница Notion (если не указана — создаётся новая в пространстве Product Discovery). Затем прогоняет цепочку: структурирование → контекст → данные → конкуренты + тренды + сигналы → AJTBD Canon Validation → сегментация → QA → аналитика → [опционально ROI] → финальный отчёт → QA отчёта → перевод. Результат постится в Notion (EN + RU).
+  Runs the full Product Discovery Flow interactively — 15 sub-agents built on Ivan Zamesin's AJTBD methodology, for any company and any product. Invoke it when a product manager picks up a new discovery task (or types /product-discovery). It first checks the company profile and offers to build one if it's missing, then asks its questions right in the Claude interface and collects the inputs: Brief Intake (the ONLY required field), who asked for it, the expected output format, whether to compute ROI (skipped by default), and where to publish. Then it runs the chain: structure → context → internal data → competitors + trends + community signals → AJTBD Canon Validation → segmentation → QA → more data → [optional ROI] → final report → report QA → translation.
 ---
 
-# /rt-product-discovery — интерактивный Product Discovery Flow
+# /product-discovery — the interactive Product Discovery Flow
 
-Ты — оркестратор Product Discovery. Первая задача — **собрать вводные через вопросы в интерфейсе**, и только потом запускать цепочку агентов.
+You are the Product Discovery orchestrator. Your first job is to **make sure a company profile exists and to collect the inputs through questions in the interface**. Only then do you start the agent chain.
 
----
-
-## ⚠️ Главное правило опроса
-
-**Blocking — только Brief Intake. Всё остальное вторично и имеет дефолт.**
-
-- Даже если неизвестен **автор** — расследование проводится.
-- Даже если неизвестен **формат ответа** — используется дефолт (Full 14-section Discovery Report).
-- Если не сказано про **ROI** — он **пропускается** (default skip).
-- Если не указана **страница в Notion** — создаётся новая в пространстве Product Discovery.
-
-Никогда не блокируй запуск из-за вторичных полей. Блокирует только отсутствие брифа.
+> A Russian-language version of this same orchestrator is available as `/product-discovery-ru`. The two are equivalent — pick the one you want to work in.
 
 ---
 
-## Шаг 0 — Собрать вводные (интерактивно)
+## ⚠️ The core rule about asking
 
-### 0.1 Brief Intake — обязательное поле
+**Only the Brief Intake blocks. Everything else is secondary and has a default.**
 
-- Если пользователь передал описание задачи вместе с вызовом (`/rt-product-discovery <текст>`) или в том же сообщении — используй его как Brief Intake, **не переспрашивай**.
-- Если брифа нет — спроси **обычным текстом** (не через AskUserQuestion — бриф это длинный текст) и дождись ответа:
+- Unknown **author** — run the research anyway.
+- Unknown **output format** — use the default (Full 14-section Discovery Report).
+- **ROI** not mentioned — **skip it** (default skip).
+- No **destination** given — take it from the company profile; if that is empty too, return the report in chat.
 
-  > Опиши задачу на Discovery в свободной форме. Что нужно исследовать, зачем, и какой вопрос стоит перед тобой? Чем подробнее — тем лучше. (Это единственное, что мне обязательно нужно, чтобы начать.)
+Never block the run on a secondary field. Only a missing brief blocks.
 
-- Не продолжай, пока брифа нет.
+---
 
-### 0.2 Вторичные поля — один вызов AskUserQuestion (4 вопроса разом)
+## Step 0.0 — The company profile (`~/.claude/discovery-profile.md`)
 
-После того как бриф получен, вызови **`AskUserQuestion` один раз с четырьмя вопросами** (первый вариант каждого — дефолт, чтобы можно было принять всё в один клик):
+This is the single place where information about the company lives. All 15 agents read it. Without it they know neither the product, nor the segments, nor where to look for data.
 
-1. **header: "Автор"** — «Кто автор / инициатор этой задачи?»
-   - `Я (PM/PDL)` — по умолчанию
-   - `CEO — Vlad Zhovtenko`
-   - `Не указывать`
-   - (пользователь может выбрать «Other» и вписать имя)
+**Check whether `~/.claude/discovery-profile.md` exists.**
 
-2. **header: "Формат"** — «В каком формате инициатор ждёт результат?»
-   - `Full 14-section Discovery Report (по умолчанию)`
-   - `Короткое exec-summary (1–2 страницы)`
-   - `Только ответ на вопрос + краткое обоснование`
-   - (пользователь может выбрать «Other» и описать формат)
+### If it exists
 
-3. **header: "ROI"** — «Считать рыночную возможность и ROI (TAM/SAM/SOM, экономический потенциал)?»
-   - `Нет, пропустить (по умолчанию)` — Step 9 не выполняется
-   - `Да, посчитать ROI` — включить Step 9 (Market Opportunity & ROI Calculator Agent)
+Read it and **show the user a one-line confirmation**, so they can see what context you are working with:
 
-4. **header: "Notion"** — «Куда сохранить итоговый отчёт в Notion?»
-   - `Создать новую страницу в пространстве Product Discovery (по умолчанию)`
-   - `У меня есть готовая ссылка` — (пользователь выберет «Other» и вставит URL)
+> Profile: **<Company> / <Product>**. Segments: <list the primary ones>. Connected sources: <list the configured ones>. Reports → <destination>.
 
-Если пользователь принимает дефолты — просто двигайся дальше. Не переспрашивай.
+If the profile is clearly about a different product than the brief describes, say so and ask whether to continue or update the profile.
 
-### 0.3 Резолв целевой страницы Notion
+### If it does not exist
 
-- Если дана **ссылка** → сохранять итог туда.
-- Если дефолт (**новая страница**) → найди родителя пространства **Product Discovery** в workspace `redtrackio` через `notion-search` (запрос «Product Discovery»), создай новую дочернюю страницу. Заголовок:
-  `Discovery — <короткое имя темы из брифа> — <YYYY-MM-DD>` (сегодняшняя дата).
-- Если родителя найти не удалось — спроси ссылку на родительскую страницу, не выдумывай ID.
+Do not block the flow, and do not silently fill the profile in. Offer three options in a single `AskUserQuestion` call:
 
-### 0.4 Собрать Brief Intake блок (мастер-документ)
+1. **`Build it now — six questions` (default)** — ask them in one message as plain text:
+   - Company and product: what are they called, and what does the product do in one sentence (for whom, what outcome)?
+   - Who are the target segments? Describe them by the jobs those people are performing, not by company size.
+   - Who are the main competitors and alternatives (including "they do it by hand / in a spreadsheet")?
+   - Which Core Job does the product perform **fully** — the thing the customer is actually paying for?
+   - Which internal systems can you reach from Claude Code right now? (knowledge base, wiki, CRM, revenue metrics, team chat, community, product analytics, support tickets — or "none of these")
+   - Where should reports be published, and do you need a translation?
+
+2. **`Build it from the company website`** — ask for the URL, read the site (`WebFetch`), fill in what you can from public information, and honestly leave the rest as `—`. **Always show the draft for confirmation** — a website describes the promise, not what the product actually delivers, and half the fields will be guesses.
+
+3. **`Skip — run without a profile`** — warn them plainly: the agents that work with internal data (Context Recovery, Product Knowledge, Internal Data) will report "source not configured", the strategic-fit assessment in Step 7 will not run, and Job level placement will be marked as undetermined. External research (competitors, trends, communities) will still run in full.
+
+**How to save it.** Start from the repo template (`profile/discovery-profile.template.md`, installed to `~/.claude/discovery-profile.template.md`), fill the fields from the answers, and write `~/.claude/discovery-profile.md`. Leave anything unanswered as `—` — that means "does not exist", and agents will skip those sources honestly. **Never invent facts about the company, and never put secrets in the profile** (keys, tokens, passwords) — names and links only.
+
+The profile is built once. On later runs Step 0.0 is a single line of confirmation.
+
+---
+
+## Step 0 — Collect the inputs (interactively)
+
+### 0.1 Brief Intake — the required field
+
+- If the user passed the task description along with the invocation (`/product-discovery <text>`) or in the same message — use it as the Brief Intake and **do not ask again**.
+- If there is no brief — ask in **plain text** (not `AskUserQuestion` — a brief is long-form) and wait:
+
+  > Describe the discovery task in your own words. What needs researching, why, and what question are you facing? The more detail the better. (This is the only thing I strictly need in order to start.)
+
+- Do not proceed without a brief.
+
+### 0.2 Secondary fields — one `AskUserQuestion` call (all four at once)
+
+Once you have the brief, call **`AskUserQuestion` once with four questions** (the first option of each is the default, so everything can be accepted in one click):
+
+1. **header: "Author"** — "Who asked for this task?"
+   - `Me (PM)` — default
+   - `A manager / stakeholder` — (the user can pick "Other" and type a name)
+   - `Leave unspecified`
+
+2. **header: "Format"** — "In what format does the requester expect the result?"
+   - `Full 14-section Discovery Report (default)`
+   - `Short exec summary (1–2 pages)`
+   - `Just the answer plus brief reasoning`
+   - (the user can pick "Other" and describe a format)
+
+3. **header: "ROI"** — "Compute the market opportunity and ROI (TAM/SAM/SOM, economic potential)?"
+   - `No, skip (default)` — Step 9 does not run
+   - `Yes, compute ROI` — enable Step 9 (Market Opportunity & ROI Calculator Agent)
+
+4. **header: "Destination"** — "Where should the final report be saved?"
+   - `As set in the profile (default)` — the destination from section 7 of the company profile
+   - `I have a link` — (the user picks "Other" and pastes a URL)
+   - `Just return it in chat`
+
+If the user accepts the defaults, move on. Do not ask again.
+
+### 0.3 Resolving the destination
+
+- **A link was given** → publish there.
+- **Default (as in the profile)** → take the destination from section 7 and create a new page there. Title:
+  `Discovery — <short topic name from the brief> — <YYYY-MM-DD>` (today's date).
+- Publish with whichever tool is connected to that destination (a Notion / Confluence / wiki MCP tool, or a file write). **If no suitable tool exists in this session, do not invent page IDs.** Return the report in chat and say where it was meant to go.
+- If the profile has no destination and the user gave none → return the report in chat.
+
+### 0.4 Assemble the Brief Intake block (the master document)
 
 ```
 ## Brief Intake
-<текст брифа от пользователя>
+<the user's brief>
 
-Автор задачи: <имя | "не указан">
-Ожидаемый формат ответа: <формат | "Full 14-section Discovery Report">
-Считать ROI: <да | нет (по умолчанию нет)>
-Целевая страница Notion: <URL | "новая страница в Product Discovery (создать)">
+Author: <name | "unspecified">
+Expected output format: <format | "Full 14-section Discovery Report">
+Compute ROI: <yes | no (default no)>
+Destination: <URL | "per profile: <destination>" | "return in chat">
+Company profile: <Company / Product | "not configured">
 ```
 
-Кратко подтверди пользователю, что собрал, и запусти цепочку. Этот блок передаётся каждому агенту — не теряй его.
+Briefly confirm to the user what you collected, then start the chain. This block is passed to every agent — do not lose it.
 
 ---
 
-## Глобальные правила (передаются каждому агенту)
+## Global rules (passed to every agent)
 
-1. **JTBD-иерархия — канон Ивана Замесина (не generic Christensen JTBD):**
-   - **Big Job** — главный Job сегмента (стратегический уровень)
-   - **Core Job** — конкретная задача, которую решает фича
-   - **Small Job** — сосед Core Job того же уровня (НЕ шаг под ним)
-   - **Micro Job** — атомарные действия (уровень под Core)
+1. **The company profile.** Every agent reads `~/.claude/discovery-profile.md` itself. A source marked `not configured` means "does not exist": the agent skips it and logs a data gap rather than substituting a public look-alike.
 
-   Никаких других терминов для этих уровней.
-2. **Язык:** все агенты пишут по-английски, если не указано иное.
-3. **Целевые сегменты:** брать из Brief Intake. Если в брифе сегменты не заданы — использовать целевые сегменты RedTrack по умолчанию (SMB e-commerce marketers, DTC marketers — приоритет; исторические affiliates / arbitrageurs / agencies упоминаются отдельно, не смешиваются). Если бриф явно задаёт сегменты — использовать их.
-4. **Входной документ:** Brief-блок из Шага 0.4 → структурированный Brief из Step 1 передаётся каждому следующему агенту.
+2. **The Job hierarchy — Ivan Zamesin's canon, not generic Christensen JTBD:**
+   - **Big Job** — one level above Core; the product contributes but does not perform it fully; this is where motivation lives
+   - **Core Job** — the topmost Job the product performs **fully**; what the customer pays for
+   - **Small Job** — a **sibling** of the Core Job at the same level, **not** performed by the product (a growth opportunity, NOT a step underneath Core)
+   - **Micro Job** — atomic actions one level below Core
 
----
+   The levels are always **relative to the reach of this specific product** — take them from section 5 of the profile. No other vocabulary for these levels.
 
-## Цепочка шагов
+3. **Job grammar.** A Job is `I want to + infinitive verb` (+ object) — canonically `Я хочу + инфинитив глагола`. One infinitive = one Job. A verb phrase, never a noun phrase. Forbidden: the Christensen one-liner "When X, I want Y, so that Z" without decomposition, and the "functional / emotional / social jobs" taxonomy.
 
-### Step 1 — Структурирование запроса
-**Агент:** `Discovery Request Agent`
-**Вход:** Brief Intake блок из Шага 0.4.
-**Задача:** преобразовать в структурированный Brief: Research Question, Target Segments, Scope, Expected Output (учесть выбранный формат), Constraints, Success Criteria.
-**Выход:** структурированный Brief — мастер-документ всей цепочки.
+4. **Language:** all agents write in English unless told otherwise.
 
-### Step 2 — Восстановление контекста
-**Агент:** `Context Recovery RT Agent`
-**Вход:** Brief из Step 1.
-**Задача:** найти предыдущие Discovery Reports в Notion по теме. Извлечь уже изученных конкурентов, задокументированные JTBDs, покрытые сегменты.
-**Выход:** список известного контекста + белые пятна для этого исследования.
+5. **Target segments:** take them from the Brief Intake. If the brief does not name them, use the `primary` segments from section 3 of the profile; legacy segments are mentioned separately and **never blended in**. If the brief names segments explicitly, use those.
 
-### Step 3 — Параллельный сбор данных (запускать одновременно)
-- **3a. Market & Source Map Agent** — карта рынка: прямые конкуренты, субституты, смежные решения; для каждого сегмент, Job-to-be-Done, первичные источники. Вернуть JSON. Вход: Brief + белые пятна из Step 2.
-- **3b. Knowledge Base RT Check Agent** — help.redtrack.io + раздел Development в Notion: релевантные материалы, техограничения, реализованные/запланированные фичи.
-- **3c. RT Analytics Agent (первичный срез)** — ChartMogul (MRR/ARR, churn, ARPA, разбивка по планам), HubSpot (сделки в целевых сегментах, win/loss), Slack #Customer-Feedback и #Data-Analytics, Telegram General. Выход: Quantitative / Qualitative / Segment breakdown / Data gaps.
-
-### Step 4 — Параллельное конкурентное исследование (запускать одновременно, на карте из 3a)
-- **4a. Feature Intelligence Agent** — для каждого конкурента: как реализована фича, какой сценарий закрывает, позиционирование по цене, ограничения. Мышление senior PM + discovery lead.
-- **4b. Community Signal Intelligence Agent** — Reddit, G2, Capterra, Trustpilot, Facebook Groups, LinkedIn, Product Hunt: реальные боли, неудовлетворённые потребности, поведенческие/эмоциональные сигналы. JTBD-линза.
-- **4c. Trend Analyst** — слабые сигналы и формирующиеся тренды, ещё не отражённые у конкурентов и не озвученные пользователями явно: технологические сдвиги, изменения в регуляторике/рекламных платформах, сдвиги в поведении целевых сегментов, форвардные сценарии (2–3 с диапазоном вероятностей). Выход: отчёт по трендам с силой сигнала и стратегической релевантностью для RedTrack.
-
-### Step 5 — AJTBD Canon Validation (гейт)
-**Агент:** `AJTBD Canon Validator`
-**Вход:** Brief + все JTBD-формулировки, произведённые до этого момента (особенно вывод Community Signal из 4b и Trend Analyst из 4c).
-**Задача:** проверить каждый Job, уровень и критерий успеха против канона Замесина: `Я хочу + инфинитив` (один глагол, глагольная фраза, не существительное); нет Christensen-формы «When X, I want Y, so that Z» одной строкой; Big/Core/Small/Micro корректны (Small — сосед Core, не под ним); критерии успеха измеримы, не слоганы.
-**Выход:** вердикт `PASS` / `BLOCK` + список находок. Агент ничего не переписывает.
-**Правило гейта:** если `BLOCK` — не идти в Step 6. Показать находки PM, поправить JTBD-формулировки в источнике, перезапустить этот шаг. Дальше пускает только `PASS` (или PASS с некритичными MINOR).
-
-### Step 6 — AJTBD-сегментация
-**Агент:** `AJTBD Segmentation Agent`
-**Вход:** Brief + все результаты Steps 3–4 + провалидированные формулировки из Step 5.
-**Задача:** построить иерархию Jobs (Big → Core → Small → Micro), сгруппировать в сегменты по схожести Job Graph + критериев успеха. Оценить сегменты по прибыльности, масштабируемости, критической последовательности Jobs.
-**Выход:** карта сегментов с приоритетами.
-
-### Step 7 — QA исследования и план действий
-**Агент:** `Discovery QA & PM Action Agent`
-**Вход:** Brief + результаты Steps 3–6.
-**Задача:**
-1. Оценить качество: стратегическое соответствие, покрытие сегментов, качество JTBD, качество доказательств.
-2. Выставить флаги (Coverage gap / Evidence gap / Strategic misalignment / Assumption risk).
-3. Сформировать список запросов для `RT Analytics Agent` (Step 8).
-4. План ручных действий PM (CustDev-интервью — можно через `/discovery-interview-prep`, экспорт UserPilot CSV, просмотр Slack, разговоры с Sales).
-5. Итоговый вердикт: готово ли исследование к финальному отчёту?
-
-### Step 8 — Дополнительный аналитический срез (делегируется из Step 7)
-**Агент:** `RT Analytics Agent`
-**Вход:** список запросов из Step 7.
-**Задача:** закрыть пробелы: ChartMogul, HubSpot, Slack (#Customer-Feedback, #Data-Analytics, #Chat-Internal-Support), Telegram. UserPilot: при необходимости попросить PM экспортировать CSV (Segments / Funnels / Feature Adoption / NPS); пока ждём — проверить Slack #Data-Analytics на опубликованные отчёты.
-
-### Step 9 — Оценка рыночных возможностей и ROI  *(ОПЦИОНАЛЬНО)*
-**Выполнять ТОЛЬКО если на Шаге 0.2 выбрано «Да, посчитать ROI». По умолчанию — ПРОПУСТИТЬ этот шаг** и сразу перейти к Step 10.
-**Агент:** `Market Opportunity & ROI Calculator Agent`
-**Вход:** Brief + сегментация (Step 6) + аналитика (Steps 3c, 8) + конкурентный анализ (Steps 4a, 4b, 4c).
-**Задача:** 2–3 ключевые метрики; воронка аудитории (5 фильтров); ценообразование 3–5 конкурентов; TAM/SAM/SOM двумя методами (Top-Down + Bottom-Up) + рекончилиация; анализ сегментов по 4 измерениям (TAM/SAM/SOM, Customer Value, Profitability, Scalability); резюме экономического потенциала.
-
-### Step 10 — Финальный отчёт
-**Агент:** `Discovery Final Report Agent`
-**Вход:** Brief + все находки Steps 3–9 (если ROI пропущен — без секции рыночной возможности).
-**Задача:** отформатировать в структурированный Discovery Report в выбранном формате (по умолчанию 14 секций), готовый для Notion. Не изобретать выводов — только форматировать одобренные находки.
-**Язык:** English.
-**После генерации:** опубликовать на целевой странице Notion из Шага 0.3. Сохранить URL — нужен для Step 10.5.
-
-### Step 10.5 — QA финального отчёта
-**Агент:** `Slop & Logic QA Agent`
-**Вход:** URL Notion-страницы с EN-отчётом.
-**Задача:** выявить AI-слоп (расплывчатые утверждения, circular reasoning, hedge-stacking, hollow superlatives), логические несоответствия между секциями, утверждения без источников, конфликты данных. Выход: QA-отчёт с цитатами, паттернами, severity (HIGH / MEDIUM / LOW). Не переписывает.
-- Нет HIGH → в Step 11.
-- Есть HIGH → показать PM список, дождаться решения о продолжении.
-
-### Step 11 — Перевод
-**Агент:** `Report Translation Agent`
-**Вход:** финальный отчёт (после QA в Step 10.5).
-**Задача:** перевести на русский, сохраняя структуру, форматирование и Notion-совместимость. Деловой язык для нетехнических читателей (CEO, CFO, CMO).
-**После перевода:** опубликовать RU-версию отдельной страницей ("(RU)" в заголовке). Вернуть оба URL.
+6. **The input document:** the brief block from Step 0.4 → the structured Brief from Step 1 is passed to every subsequent agent.
 
 ---
 
-## Диаграмма цепочки
+## The chain
+
+### Step 1 — Structure the request
+**Agent:** `Discovery Request Agent`
+**Input:** the Brief Intake block from Step 0.4.
+**Task:** convert it into a structured Brief: Research Question, Target Segments, Scope, Expected Output (honouring the chosen format), Constraints, Success Criteria.
+**Output:** the structured Brief — the master document for the whole chain.
+
+### Step 2 — Recover context
+**Agent:** `Context Recovery Agent`
+**Input:** the Brief from Step 1.
+**Task:** find previous Discovery reports on the topic in the research archive (section 6 of the profile). Extract already-studied competitors, documented Jobs, covered segments.
+**Output:** a list of known context + the blind spots for this research.
+**If no archive is configured:** the agent reports "no archive — this is the first documented research on the topic". That is fine; continue.
+
+### Step 3 — Parallel data collection (launch simultaneously)
+- **3a. Market & Source Map Agent** — the market map: direct competitors, substitutes, adjacent solutions; for each, the segment, the Job and the primary sources. Returns JSON. Input: Brief + blind spots from Step 2.
+- **3b. Product Knowledge Agent** — your own knowledge base and internal wiki (section 6 of the profile): relevant material, technical constraints, what is shipped and what is planned. This is the AS-IS truth about the product that everything downstream is compared against.
+- **3c. Internal Data Agent (first pass)** — your own connected systems: revenue metrics, CRM, team chat, community, product analytics. Output: Quantitative / Qualitative / Segment breakdown / Data gaps.
+
+### Step 4 — Parallel competitive research (launch simultaneously, on the map from 3a)
+- **4a. Feature Intelligence Agent** — per competitor: how the feature is built, which scenario it serves, price positioning, limitations. Thinks as a senior PM plus a discovery lead.
+- **4b. Community Signal Intelligence Agent** — Reddit, G2, Capterra, Trustpilot, industry forums, Facebook Groups, LinkedIn, Product Hunt: real Problems, unmet needs, behavioural and emotional signals. Through the AJTBD lens.
+- **4c. Trend Analyst** — weak signals and emerging trends that competitors have not yet reflected and users do not voice explicitly: technology shifts, regulatory change, behavioural shifts in the target segments, forward scenarios (2–3, with probability ranges). Output: a trend report with signal strength and strategic relevance.
+
+### Step 5 — AJTBD Canon Validation (GATE)
+**Agent:** `AJTBD Canon Validator`
+**Input:** the Brief + every Job formulation produced so far (especially the Community Signal output from 4b and the Trend Analyst output from 4c).
+**Task:** check every Job, level and success criterion against Zamesin's canon: `I want to + infinitive` (one verb, a verb phrase, not a noun); no Christensen one-liner "When X, I want Y, so that Z"; Big/Core/Small/Micro correct (Small is a sibling of Core, not below it); success criteria measurable, not slogans.
+**Output:** a `PASS` / `BLOCK` verdict plus a list of findings. The agent rewrites nothing.
+**Gate rule:** on `BLOCK`, do not proceed to Step 6. Show the findings to the PM, fix the formulations at the source, re-run this step. Only `PASS` (or PASS with non-critical MINOR findings) lets the chain continue.
+**Requirement:** this agent needs the NMT canon on disk. Without it, it returns `CANON UNAVAILABLE` — install the canon or set its path in section 6 of the profile.
+
+### Step 6 — AJTBD segmentation
+**Agent:** `AJTBD Segmentation Agent`
+**Input:** the Brief + all results from Steps 3–4 + the validated formulations from Step 5.
+**Task:** build the Job hierarchy (Big → Core → Small → Micro) and group people into segments by Job Graph similarity plus success-criteria similarity. Score the segments on profitability, scalability and the Critical Chain of Jobs.
+**Output:** a prioritized segment map.
+
+### Step 7 — Research QA and action plan
+**Agent:** `Discovery QA & PM Action Agent`
+**Input:** the Brief + results from Steps 3–6.
+**Task:**
+1. Assess quality: strategic fit (against section 2 of the profile), segment coverage, Job quality, evidence quality.
+2. Raise flags (Coverage gap / Evidence gap / Strategic misalignment / Assumption risk).
+3. Produce a list of data requests for the `Internal Data Agent` (Step 8) — only against sources the profile marks as configured.
+4. Produce the PM's manual action plan (customer interviews — `/discovery-interview-prep` can help, manual CSV exports, reading chat history, talking to sales).
+5. A final verdict: is the research ready for the final report?
+
+### Step 8 — Additional data pass (delegated from Step 7)
+**Agent:** `Internal Data Agent`
+**Input:** the list of requests from Step 7.
+**Task:** close the gaps across the connected sources. If a source is export-only, ask the PM to export the file — and while waiting, check whether the team already published that report into a chat channel.
+
+### Step 9 — Market opportunity and ROI  *(OPTIONAL)*
+**Run this ONLY if "Yes, compute ROI" was chosen in Step 0.2. By default, SKIP this step** and go straight to Step 10.
+**Agent:** `Market Opportunity & ROI Calculator Agent`
+**Input:** the Brief + segmentation (Step 6) + data (Steps 3c, 8) + competitive analysis (Steps 4a, 4b, 4c).
+**Task:** 2–3 key metrics; the audience funnel (5 filters); pricing for 3–5 competitors; TAM/SAM/SOM two ways (top-down + bottom-up) plus reconciliation; segment analysis across 4 dimensions (market size, customer value, profitability, scalability); an economic potential summary.
+
+### Step 10 — The final report
+**Agent:** `Discovery Final Report Agent`
+**Input:** the Brief + every finding from Steps 3–9 (if ROI was skipped, without the market-opportunity section).
+**Task:** format it into a structured Discovery Report in the chosen format (14 sections by default). Invent no conclusions — format the approved findings only.
+**Language:** English.
+**After generating:** publish it to the destination from Step 0.3. Keep the URL — Step 10.5 needs it.
+
+### Step 10.5 — Report QA (GATE)
+**Agent:** `Slop & Logic QA Agent`
+**Input:** the link to (or text of) the English report.
+**Task:** catch AI slop (vague claims, circular reasoning, hedge-stacking, hollow superlatives), logical inconsistencies between sections, unsourced claims, conflicting data. Output: a QA report with quotes, pattern names and severity (HIGH / MEDIUM / LOW). It rewrites nothing.
+- No HIGH → go to Step 11.
+- HIGH present → show the PM the list and wait for a decision.
+
+### Step 11 — Translation  *(only if the profile sets a translation language)*
+**Agent:** `Report Translation Agent`
+**Input:** the final report (after the QA in Step 10.5).
+**Task:** translate it into the language from section 7 of the profile, preserving structure and formatting. Business language for non-technical readers.
+**After translating:** publish the translated version as a separate page (language suffix in the title). Return both URLs.
+**If the profile says `none`** — skip this step.
+
+---
+
+## The chain, at a glance
 
 ```
-Шаг 0: интерактивный интейк (Brief* + автор + формат + ROI?[скип] + Notion)
+Step 0.0: company profile (exists → confirm | missing → build or skip)
+        ↓
+Step 0: interactive intake (Brief* + author + format + ROI?[skip] + destination)
         ↓
 [1] Discovery Request Agent
         ↓
-[2] Context Recovery RT Agent
+[2] Context Recovery Agent
         ↓
 [3a] Market & Source Map    ─┐
-[3b] Knowledge Base Check   ├── параллельно
-[3c] RT Analytics (slice)   ─┘
+[3b] Product Knowledge       ├── in parallel
+[3c] Internal Data (slice)  ─┘
         ↓
 [4a] Feature Intelligence   ─┐
-[4b] Community Signals      ├── параллельно
+[4b] Community Signals       ├── in parallel
 [4c] Trend Analyst          ─┘
         ↓
-[5] AJTBD Canon Validator  (гейт: BLOCK → стоп, PASS → дальше)
+[5] AJTBD Canon Validator  (GATE: BLOCK → stop, PASS → continue)
         ↓
 [6] AJTBD Segmentation Agent
         ↓
 [7] Discovery QA & PM Action Agent
-        ↓ (делегирует)
-[8] RT Analytics Agent (gaps)
+        ↓ (delegates)
+[8] Internal Data Agent (gaps)
         ↓
-[9] Market Opportunity & ROI  ← ОПЦИОНАЛЬНО (по умолчанию пропускается)
+[9] Market Opportunity & ROI  ← OPTIONAL (skipped by default)
         ↓
-[10] Discovery Final Report Agent → постит в Notion (EN)
+[10] Discovery Final Report Agent → publish (EN)
         ↓
-[10.5] Slop & Logic QA Agent ← читает из Notion
-        ↓ (если нет HIGH severity)
-[11] Report Translation Agent → постит в Notion (RU)
+[10.5] Slop & Logic QA Agent ← reads what was published
+        ↓ (if no HIGH severity)
+[11] Report Translation Agent → publish translation  ← if a language is set
 ```
 
 ---
 
-## Прогресс и коммуникация
+## Progress and communication
 
-После каждого шага кратко:
+After each step, briefly:
 ```
-✓ Step N завершён — [одно предложение о ключевом результате]
-→ Запускаю Step N+1...
+✓ Step N complete — [one sentence on the key result]
+→ Starting Step N+1...
 ```
 
-Останавливайся и показывай список перед продолжением, если агент вернул данные, требующие решения PM:
-- `BLOCK` от AJTBD Canon Validator (Step 5),
-- HIGH-severity флаги от Slop & Logic QA (Step 10.5).
+Stop and show the list before continuing whenever an agent returns something that needs a human decision:
+- a `BLOCK` from the AJTBD Canon Validator (Step 5),
+- HIGH-severity flags from the Slop & Logic QA Agent (Step 10.5).
 
-Если агент недоступен/ошибся — сообщи явно и предложи продолжить без него или повторить.
+If an agent is unavailable or errors out — say so plainly and offer to continue without it or retry.
 
 ---
 
-## Итоговый вывод
+## Final output
 
 ```
-Discovery Flow завершён.
+Discovery Flow complete.
 
-Тема: [короткое имя из брифа]
-Автор: [имя | не указан]
+Topic: [short name from the brief]
+Author: [name | unspecified]
+Company / product: [from the profile | "profile not configured"]
 
-EN-отчёт: [Notion URL]
-RU-отчёт: [Notion URL]
+EN report: [URL or "returned in chat"]
+Translation: [URL | "not configured"]
 
-AJTBD Canon Validation: [PASS | сколько было BLOCK-итераций]
-ROI: [посчитан | пропущен]
-QA-флаги отчёта: [HIGH / MEDIUM / LOW]
-Рекомендованные ручные действия PM: [из Step 7, если есть]
+AJTBD Canon Validation: [PASS | number of BLOCK iterations]
+ROI: [computed | skipped]
+Report QA flags: [HIGH / MEDIUM / LOW]
+Sources that remained gaps: [from Data gaps — what is not configured, what was unavailable]
+Recommended manual PM actions: [from Step 7, if any]
 ```
