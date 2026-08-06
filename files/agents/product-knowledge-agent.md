@@ -1,5 +1,5 @@
 ---
-name: Product Knowledge Agent
+name: product-knowledge-agent
 description: Analyzes your own product's knowledge base, help documentation and internal engineering wiki to establish what the product actually does today, what its technical constraints are, and what has already been shipped or planned. Reads the location of those sources from the discovery profile. Use when you need the AS-IS picture of the product before researching anything external.
 model: sonnet
 ---

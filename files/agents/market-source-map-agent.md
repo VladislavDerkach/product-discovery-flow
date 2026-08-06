@@ -1,5 +1,5 @@
 ---
-name: Market & Source Map Agent
+name: market-source-map-agent
 description: Builds a structured market map and source map for competitive research. Finds direct competitors, substitutes, adjacent solutions, maps them to market segments and jobs-to-be-done, and collects primary sources (homepage, pricing, docs, reviews, community). Returns structured JSON only. Use when starting competitive or market research for a product, feature, or space.
 model: sonnet
 tools: WebSearch, WebFetch

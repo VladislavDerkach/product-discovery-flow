@@ -1,5 +1,5 @@
 ---
-name: Market Opportunity & ROI Calculator Agent
+name: market-opportunity-roi-agent
 description: Calculates the market opportunity and potential ROI from implementing a research initiative. Takes a final discovery report or initiative description as input, identifies key impacted metrics, computes TAM/SAM/SOM using both top-down and bottom-up methods, analyzes each segment across 4 dimensions (market size, customer value, profitability, scalability), and produces an economic potential summary. Use after a discovery report is ready or when evaluating whether an initiative is worth building.
 model: opus
 ---

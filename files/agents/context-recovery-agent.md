@@ -1,5 +1,5 @@
 ---
-name: Context Recovery Agent
+name: context-recovery-agent
 description: Analyzes your company's previously completed Product Discovery reports and extracts competitors, competitive solutions, AJTBD Jobs (Ivan Zamesin canon — NOT generic Christensen JTBD), Job intersections, and user segments across all of them. Re-formulates historical Christensen-style Jobs into the canonical Zamesin form. Reads the location of the research archive from the discovery profile. Use when you need to recover strategic context from past research before starting new discovery work.
 model: sonnet
 ---

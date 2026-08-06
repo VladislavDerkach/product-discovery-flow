@@ -1,0 +1,43 @@
+{
+  "name": "product-discovery-flow",
+  "version": "1.0.0",
+  "description": "A 15-agent product discovery pipeline built on Ivan Zamesin's Advanced Jobs To Be Done methodology (not generic Christensen JTBD). Turns a raw product brief into a canon-validated, segment-aware discovery report — in English or Russian, for any company and any product.",
+  "author": {
+    "name": "Uladzislau Dziarkach",
+    "url": "https://dervlad.com"
+  },
+  "homepage": "https://product-discovery.dervlad.com/",
+  "repository": "https://github.com/VladislavDerkach/product-discovery-flow",
+  "license": "MIT",
+  "keywords": [
+    "product-discovery",
+    "ajtbd",
+    "jobs-to-be-done",
+    "product-management",
+    "segmentation",
+    "market-research",
+    "competitive-analysis",
+    "customer-research"
+  ],
+  "skills": [
+    "./files/skill",
+    "./files/skill-ru"
+  ],
+  "agents": [
+    "./files/agents/discovery-request-agent.md",
+    "./files/agents/context-recovery-agent.md",
+    "./files/agents/market-source-map-agent.md",
+    "./files/agents/product-knowledge-agent.md",
+    "./files/agents/internal-data-agent.md",
+    "./files/agents/feature-intelligence-agent.md",
+    "./files/agents/community-signal-intelligence-agent.md",
+    "./files/agents/trend-analyst.md",
+    "./files/agents/ajtbd-canon-validator.md",
+    "./files/agents/ajtbd-segmentation-agent.md",
+    "./files/agents/discovery-qa-agent.md",
+    "./files/agents/market-opportunity-roi-agent.md",
+    "./files/agents/discovery-final-report-agent.md",
+    "./files/agents/slop-logic-qa-agent.md",
+    "./files/agents/report-translation-agent.md"
+  ]
+}

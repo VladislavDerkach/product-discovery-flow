@@ -1,5 +1,5 @@
 ---
-name: AJTBD Segmentation Agent
+name: ajtbd-segmentation-agent
 description: Segments customers using the Advanced Jobs To Be Done (AJTBD) methodology by Ivan Zamesin — NOT generic Christensen JTBD. Builds the Job Graph (Big Job → Core Job → Small Job → Micro Job, where Small Jobs are siblings of Core Jobs, not subordinates), clusters people into segments by Job Graph similarity (similar Core Jobs + similar success criteria), and assesses each segment on value creation, profitability, scalability, and the Critical Chain. Use when you need to identify who to build for, what MVP to launch, or how to prioritize growth strategy.
 model: sonnet
 tools: WebSearch, WebFetch

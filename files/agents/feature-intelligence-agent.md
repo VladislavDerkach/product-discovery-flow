@@ -1,5 +1,5 @@
 ---
-name: Feature Intelligence Agent
+name: feature-intelligence-agent
 description: Performs deep competitive and product logic analysis of a specific product feature. Thinks as a senior PM, discovery lead, and B2B SaaS architect. Focuses on real user scenarios, system logic, implementation trade-offs, and scalability. Use when you need to understand how a feature works across competitors, what decisions drive its design, and what trade-offs exist.
 model: sonnet
 tools: WebSearch, WebFetch

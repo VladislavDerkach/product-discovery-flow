@@ -1,0 +1,23 @@
+{
+  "name": "dervlad",
+  "owner": {
+    "name": "Uladzislau Dziarkach",
+    "url": "https://dervlad.com"
+  },
+  "description": "Skills and agents for Claude Code by Uladzislau Dziarkach — product management, discovery and research tooling built on Ivan Zamesin's Advanced Jobs To Be Done methodology.",
+  "plugins": [
+    {
+      "name": "product-discovery-flow",
+      "source": "./",
+      "description": "Turns a raw product brief into a canon-validated, segment-aware discovery report using Ivan Zamesin's Advanced Jobs To Be Done methodology. 15 sub-agents, 12 steps, English and Russian.",
+      "category": "product-management",
+      "keywords": [
+        "product-discovery",
+        "ajtbd",
+        "jobs-to-be-done",
+        "segmentation",
+        "market-research"
+      ]
+    }
+  ]
+}

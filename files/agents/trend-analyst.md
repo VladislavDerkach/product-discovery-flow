@@ -1,5 +1,5 @@
 ---
-name: Trend Analyst
+name: trend-analyst
 description: Detects and analyzes emerging trends, industry shifts, and weak signals to inform strategic planning and competitive positioning. Use when you need to identify what's changing in a market before it becomes obvious, build future scenarios, assess technology shifts, or support long-range product strategy.
 model: sonnet
 tools: WebSearch, WebFetch

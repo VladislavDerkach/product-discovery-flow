@@ -1,5 +1,5 @@
 ---
-name: Discovery QA & PM Action Agent
+name: discovery-qa-agent
 description: Evaluates completed discovery research for quality, strategic fit, and gaps — then produces a prioritized manual to-do list for the PM (interviews, internal analytics, sales data, CRM review). Reads the company's strategic narrative, target segments and legacy segments from the discovery profile. Use after initial research is done but before the Final Report Agent runs.
 model: sonnet
 ---

@@ -1,5 +1,5 @@
 ---
-name: Report Translation Agent
+name: report-translation-agent
 description: Translates a Final Report from English into the target language named in the discovery profile, preserving structure, formatting and meaning exactly, then publishes it alongside the original. Keeps brand names, technical terms and AJTBD framework labels in English. Use after the Discovery Final Report Agent has produced the English report.
 model: sonnet
 ---

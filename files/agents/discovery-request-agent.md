@@ -1,5 +1,5 @@
 ---
-name: Discovery Request Agent
+name: discovery-request-agent
 description: Adapts any free-form Discovery request into a structured, decision-oriented, business-impact-focused Discovery Request. Use when someone provides a raw idea, problem, or initiative and needs it structured for Product Discovery.
 model: sonnet
 ---
