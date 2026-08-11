@@ -208,7 +208,7 @@ Briefly confirm to the user what you collected, then start the chain. This block
 ### Step 10 — The final report
 **Agent:** `discovery-final-report-agent`
 **Input:** the Brief + every finding from Steps 3–9 (if ROI was skipped, without the market-opportunity section).
-**Task:** format it into a structured Discovery Report in the chosen format (14 sections by default). Invent no conclusions — format the approved findings only.
+**Task:** format it into a structured Discovery Report in the chosen format (11 sections by default). Invent no conclusions — format the approved findings only.
 **Language:** English.
 **After generating:** publish it to the destination from Step 0.3. Keep the URL — Step 10.5 needs it.
 

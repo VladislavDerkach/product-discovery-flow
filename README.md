@@ -76,7 +76,7 @@ flowchart TD
 | 10 | 6 | `ajtbd-segmentation-agent` | Builds the Job Graph (Big → Core → Small → Micro), clusters segments by Job Graph + criteria similarity, scores them. |
 | 11 | 7 | `discovery-qa-agent` | Audits research quality, raises flags, produces extra analytics queries + a manual PM to-do. |
 | 12 | 9 · opt. | `market-opportunity-roi-agent` | TAM/SAM/SOM two ways, audience funnel, competitor pricing, segment economics. Skipped by default. |
-| 13 | 10 | `discovery-final-report-agent` | Formats approved findings into a 3-layer, 14-section report. Invents nothing. |
+| 13 | 10 | `discovery-final-report-agent` | Formats approved findings into a 3-layer, 11-section report. Invents nothing. |
 | 14 | 10.5 · **GATE** | `slop-logic-qa-agent` | Catches AI slop + logic inconsistencies with quotes and HIGH/MED/LOW severity. On HIGH the pipeline stops. |
 | 15 | 11 | `report-translation-agent` | Translates the final report into the language set in your profile, preserving structure. Skipped if none. |
 
