@@ -18,6 +18,20 @@
         "segmentation",
         "market-research"
       ]
+    },
+    {
+      "name": "jtbd-job-mapper",
+      "source": { "source": "github", "repo": "VladislavDerkach/jtbd-job-mapper" },
+      "description": "Turns customer research into a Jobs-to-be-Done package — a job list, a link graph and a Next Move Theory segment map, rendered to a FigJam board or to a single HTML file. Two skills, Ivan Zamesin's Advanced JTBD canon.",
+      "category": "product-management",
+      "keywords": [
+        "jtbd",
+        "jobs-to-be-done",
+        "ajtbd",
+        "next-move-theory",
+        "segmentation",
+        "figjam"
+      ]
     }
   ]
 }
